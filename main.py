@@ -19,6 +19,8 @@ ev3 = EV3Brick()
 leftMotor = Motor(Port.A)
 rightMotor = Motor(Port.B)
 
+grabberMotor = Motor(Port.C)
+
 # Colour sensor initialised
 lineSensor = ColorSensor(Port.S2)
 
@@ -84,6 +86,12 @@ def AbortOnTime(stopTime):
 
     return False
 
+def Grab(close):
+    if close:
+        grabberMotor.run_until_stalled(-100, Stop.HOLD, 50)
+    else:
+        grabberMotor.run_until_stalled(150, Stop.COAST, 25)
+
 def Test(condition):
     if not(condition):
         ev3.speaker.beep(500, 500)
@@ -100,6 +108,16 @@ def TestCondition(value):
 
 #while True:
 #    Test(AbortOnReflection(25))
+
+
+
+#GRAB
+Grab(True)
+
+wait(5000)
+
+#RELEASE
+Grab(False)
 
 
 
