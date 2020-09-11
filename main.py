@@ -23,24 +23,130 @@ rightMotor = Motor(Port.B)
 lineSensor = ColorSensor(Port.S2)
 
 # Gyro initialised
-gyroSensor = GyroSensor(Port.S3)
+#gyroSensor = GyroSensor(Port.S3)
+#gyroSensor.reset_angle(0)
 
 robot = DriveBase(leftMotor, rightMotor, wheel_diameter = 55.5, axle_track=120)
 
-black = 40
+black = 10
+gray = 40
 white = 70
-threshold = (black + white) / 2
+grayWhite = (gray + white) / 2
 
 driveSpeed = 100
 activationLine = 0
 
-run = True
+stopwatch = StopWatch()
 
-gyroDelta = 0
+def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1):
+    while not(abortCondition(abortConditionParam1)):
+        deviation = followReflection - lineSensor.reflection()
 
-proportionalGain = 2
+        turnRate = turnGain * deviation
 
-while run == True:
+        robot.drive(driveSpeed, turnRate)
+
+    robot.stop()
+
+def DriveStraight(abortCondition, abortConditionParam1):
+    while not(abortCondition(abortConditionParam1)):
+        robot.drive(driveSpeed, 0)
+        
+    robot.stop()
+
+def DriveStraightLength(mm):
+    robot.straight(mm)
+
+def AbortOnReflection(reflection):
+    if lineSensor.reflection() < reflection:
+        return True
+
+    return False
+
+def Turn(degrees, toRight):
+    if toRight:
+        robot.turn(degrees)
+    else:
+        robot.turn(-degrees)
+
+def CountLines(abortOnLine):
+    lines = 0
+    threshold = 10
+    
+    while (lines <= abortOnLine):
+        if (lineSensor.reflection() <= grayWhite - threshold or lineSensor.reflection() >= grayWhite + threshold):
+            lines += 1
+
+
+def AbortOnTime(stopTime):
+    if (stopwatch.time() > stopTime):
+        return True
+
+    return False
+
+def Test(condition):
+    if not(condition):
+        ev3.speaker.beep(500, 500)
+    else:
+        ev3.speaker.beep(5000, 500)
+
+def TestCondition(value):
+    if value:
+        return True
+    else:
+        return False
+
+
+
+#while True:
+#    Test(AbortOnReflection(25))
+
+
+
+
+#1
+FollowLine(grayWhite, 2, AbortOnReflection, black)
+
+#ev3.speaker.beep(500, 500)
+
+#2
+Turn(70, True)
+DriveStraight(AbortOnReflection, grayWhite)
+Turn(70, False)
+FollowLine(grayWhite, 2, AbortOnReflection, black)
+
+#3 - first bottle
+Turn(70, False)
+DriveStraight(AbortOnReflection, grayWhite)
+Turn(70, True)
+FollowLine(grayWhite, 2, AbortOnReflection, black)
+
+#4 bridge
+FollowLine(grayWhite, 2, AbortOnReflection, black)
+
+#5 striped lines
+FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 1000) # drive straight for 1 sec after black line
+Turn(45, False)
+DriveStraight(CountLines, 3)
+Turn(45, True)
+
+#6
+#...
+
+#7
+Turn(45, True)
+DriveStraight(3000)
+Turn(90, False)
+DriveStraight(3000)
+Turn(45, True)
+FollowLine(grayWhite, 2, AbortOnReflection, black)
+
+
+'''
+return
+
+
+
     # Line follow code
     # Calculate deviation from the threshold
     deviation = threshold -lineSensor.reflection()
@@ -60,15 +166,39 @@ while run == True:
     if activationLine == 1:
         #ev3.speaker.beep(500, 15500)
         gyroValue1 = gyroSensor.angle() # find current angle of robot
-        turnRate = 30 # change turn rate to go to broken line
+        turnRate = -30 # change turn rate to go to broken line
         gyroDelta = 0
-        while(gyroDelta < 70): # while the robot should be turning
+        while(gyroDelta < 35): # while the robot should be turning
             #ev3.speaker.beep(500, 50)
             robot.drive(driveSpeed,turnRate)
-            gyroDelta = gyroSensor.angle() - gyroValue1 # calculate delta to determine when to stop turning
+            gyroDelta = gyroValue1 - gyroSensor.angle() # calculate delta to determine when to stop turning
+        ev3.speaker.beep(500, 50)
+        
+
+        colorChange = False
+        while lineSensor.reflection() > 65 or not(colorChange):
+            robot.drive(driveSpeed,0)
+
+            if (lineSensor.reflection() < 65 - 10)
+                colorChange = True
+
+        # white
+        if lineSensor.reflection() > 65
+            while (lineSensor.reflection() > 55)
+                robot.drive(driveSpeed,0)
+        
+        # not white
+
 
         while lineSensor.reflection() > 65:
             robot.drive(driveSpeed,0)
+        while lineSensor.reflection() < 50:
+            robot.drive(driveSpeed,0)
+        while lineSensor.reflection() > 65:
+            robot.drive(driveSpeed,0)
+
+        activationLine += 1
+        continue
 
         gyroValue1 = gyroSensor.angle() # find current angle of robot
         turnRate = -100 # change turn rate to go to broken line
@@ -112,11 +242,4 @@ while run == True:
     #        gyroDelta = gyroSensor.angle() - gyroValue1
     #    activationLine = 0
 
-
-# Test broken line
-#BrokenLineTest.BrokenLineTestFunc()
-
-
-
-
-
+'''
