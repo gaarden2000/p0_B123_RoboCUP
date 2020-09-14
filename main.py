@@ -59,11 +59,28 @@ def DriveStraight(abortCondition, abortConditionParam1):
 def DriveStraightLength(mm):
     robot.straight(mm)
 
-def AbortOnReflection(reflection):
-    if lineSensor.reflection() >= reflection - 10 or lineSensor.reflection() <= reflection + 10:
+class OnReflectionParam:
+    def __init__(self, reflection, threshold):
+        self.reflection = reflection
+        self.threshold = threshold
+
+def OnReflection(onReflectionParam):
+    if onReflectionParam.threshold == 0:
+        onReflectionParam.threshold = 10
+
+    if lineSensor.reflection() >= onReflectionParam.reflection - onReflectionParam.threshold and lineSensor.reflection() <= onReflectionParam.reflection + onReflectionParam.threshold:
         return True
 
     return False
+
+def OnNotReflection(onReflectionParam):
+    if onReflectionParam.threshold == 0:
+        onReflectionParam.threshold = 10
+
+    if lineSensor.reflection() >= onReflectionParam.reflection - onReflectionParam.threshold and lineSensor.reflection() <= onReflectionParam.reflection + onReflectionParam.threshold:
+        return False
+
+    return True
 
 def Turn(degrees, toRight):
     if toRight:
@@ -121,58 +138,62 @@ def TestCondition(value):
 
 
 
-#while True:
-#    Test(AbortOnReflection(25))
+#0 START - drive until first black line
+FollowLine(grayWhite, 2, OnReflectionParam(black, 10))
+
+ev3.speaker.beep(500, 500)
+
+#1 Starts on first black line
+Turn(45, True)
+DriveStraightLength(100)
+DriveStraight(OnReflectionParam(gray, 5))
+DriveStraight(OnNotReflectionParam(gray, 5))
+Turn(45, False)
+DriveStraightLength(100)
+FollowLine(grayWhite, 2, OnReflectionParam(black, 10)
+
+ev3.speaker.beep(500, 100)
 
 
+#2 Second black line
+Turn(45, False)
+DriveStraight(OnReflectionParam(gray, 10))
+Turn(45, True)
+FollowLine(grayWhite, 2, OnReflectionParam(black, 5))
 
-#GRAB
-Grab(True)
-
-wait(5000)
-
-#RELEASE
-Grab(False)
-
+ev3.speaker.beep(500, 100)
 
 
-
-#1
-FollowLine(grayWhite, 2, AbortOnReflection, black)
-
-#ev3.speaker.beep(500, 500)
-
-#2
-Turn(70, True)
-DriveStraight(AbortOnReflection, grayWhite)
+#3 first bottle
 Turn(70, False)
-FollowLine(grayWhite, 2, AbortOnReflection, black)
-
-#3 - first bottle
-Turn(70, False)
-DriveStraight(AbortOnReflection, grayWhite)
+DriveStraight(OnReflectionParam(grayWhite, 10))
 Turn(70, True)
-FollowLine(grayWhite, 2, AbortOnReflection, black)
+FollowLine(grayWhite, 2, OnReflectionParam(black, 10))
+
+ev3.speaker.beep(500, 100)
+
 
 #4 bridge
-FollowLine(grayWhite, 2, AbortOnReflection, black)
+FollowLine(grayWhite, 2, OnReflectionParam(black, 10))
+
 
 #5 striped lines
-FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 1000) # drive straight for 1 sec after black line
+FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000) # drive straight for 1 sec after black line
 Turn(45, False)
-DriveStraight(CountLines, CountLinesValues(3))
+DriveStraight(CountLines, CountLinesValues(7))
 Turn(45, True)
 
 #6
 #...
 
+
 #7
 Turn(45, True)
-DriveStraight(3000)
-Turn(90, False)
-DriveStraight(3000)
+DriveStraightLength(350)
+Turn(70, False)
+DriveStraightLength(380)
 Turn(45, True)
-FollowLine(grayWhite, 2, AbortOnReflection, black)
+FollowLine(grayWhite, 2, AbortOnReflectionParam(black, 10))
 
 
 '''
