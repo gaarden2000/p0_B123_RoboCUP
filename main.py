@@ -24,6 +24,9 @@ grabberMotor = Motor(Port.C)
 # Colour sensor initialised
 lineSensor = ColorSensor(Port.S2)
 
+# Ultrasonic sensor initialised
+distanceSensor = UltrasonicSensor(Port.S4)
+
 # Gyro initialised
 #gyroSensor = GyroSensor(Port.S3)
 #gyroSensor.reset_angle(0)
@@ -59,12 +62,6 @@ def DriveStraight(abortCondition, abortConditionParam1):
 def DriveStraightLength(mm):
     robot.straight(mm)
 
-def AbortOnReflection(reflection):
-    if lineSensor.reflection() < reflection:
-        return True
-
-    return False
-
 def Turn(degrees, toRight):
     if toRight:
         robot.turn(degrees)
@@ -79,11 +76,22 @@ def CountLines(abortOnLine):
         if (lineSensor.reflection() <= grayWhite - threshold or lineSensor.reflection() >= grayWhite + threshold):
             lines += 1
 
+def AbortOnReflection(reflection):
+    if lineSensor.reflection() < reflection:
+        return True
+
+    return False
 
 def AbortOnTime(stopTime):
     if (stopwatch.time() > stopTime):
         return True
 
+    return False
+
+def AbortOnDistance(distanceToObject):
+    if(distanceSensor.distance() <= distanceToObject):
+        return True
+    
     return False
 
 def Grab(close):
@@ -104,6 +112,49 @@ def TestCondition(value):
     else:
         return False
 
+# DriveToObject
+# Used hardware: Ultrasonic sensor, motors
+# Input: Wanted distance from the object in centimeters
+# Output: None
+# Remarks: Drives directly towards object until the wanted distance is reached. 
+def DriveToObject(cm):
+    distanceToObject = distanceSensor.distance()
+    DriveStraight(AbortOnDistance, distanceToObject - cm)
+
+# FindDrivingAngle
+# Used hardware: Ultrasonic sensor, motors
+# Input: Direction to turn in when finding angle
+# Output: None
+# Remarks: Turns to find the angle at which the car can move, based on corners of the objects the car is moving between. 
+def FindDrivingAngle(direction):
+    angleVar = 0
+    
+    while(startFound != True):
+        distanceVar = distanceSensor.distance()
+        Turn(2, direction)
+        if(distanceSensor.distance() - distanceVar >= 100):
+            startFound = True
+
+    while(varFound != True):
+        distanceVar = distanceSensor.distance()
+        angleVar += 2
+        Turn(2, direction)
+        if(distanceSensor.distance() - distanceVar > 100):
+            varFound = True
+    
+    Turn(angleVar / 2, -direction)
+
+# FindObject
+# Used hardware: Ultrasonic sensor, motors
+# Input: Direction to turn in when finding object
+# Output: None
+# Remarks: Looks for object at 2 degree intervals 
+def FindObject(direction):
+    while(distanceSensor.distance() < distanceVar - 20):
+        distanceVar = distanceSensor.distance()
+        Turn(2, direction)
+        
+
 
 
 #while True:
@@ -123,41 +174,63 @@ Grab(False)
 
 
 #1
+#'''
 FollowLine(grayWhite, 2, AbortOnReflection, black)
+#'''
 
 #ev3.speaker.beep(500, 500)
 
 #2
+#'''
 Turn(70, True)
 DriveStraight(AbortOnReflection, grayWhite)
 Turn(70, False)
 FollowLine(grayWhite, 2, AbortOnReflection, black)
+#'''
 
 #3 - first bottle
+#'''
 Turn(70, False)
 DriveStraight(AbortOnReflection, grayWhite)
 Turn(70, True)
 FollowLine(grayWhite, 2, AbortOnReflection, black)
+#'''
 
 #4 bridge
+#'''
 FollowLine(grayWhite, 2, AbortOnReflection, black)
+#'''
 
 #5 striped lines
+#'''
 FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 1000) # drive straight for 1 sec after black line
 Turn(45, False)
 DriveStraight(CountLines, 3)
 Turn(45, True)
+#'''
 
 #6
 #...
 
 #7
+#'''
 Turn(45, True)
 DriveStraight(3000)
 Turn(90, False)
 DriveStraight(3000)
 Turn(45, True)
 FollowLine(grayWhite, 2, AbortOnReflection, black)
+#'''
+
+#8 - Walls
+DriveToObject(20) # Go towards wall 1
+FindDrivingAngle(False) # Find out where to drive to go towards wall 2, going left
+leftMotor.reset_angle(0) # Reset the written angle of the motor to 0, ensuring more precision during calculation
+DriveToObject(20) # Go towards wall 2
+drivenDistanceWalls = leftMotor.angle() # Finds distance travelled towards wall 2
+FindDrivingAngle(True) # Find out where to drive to go past wall 2, going right
+DriveStraight(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
+FindObject(False) # Find the bottle
 
 
 '''
