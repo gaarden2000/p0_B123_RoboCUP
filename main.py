@@ -60,7 +60,7 @@ def DriveStraightLength(mm):
     robot.straight(mm)
 
 def AbortOnReflection(reflection):
-    if lineSensor.reflection() < reflection:
+    if lineSensor.reflection() >= reflection - 10 or lineSensor.reflection() <= reflection + 10:
         return True
 
     return False
