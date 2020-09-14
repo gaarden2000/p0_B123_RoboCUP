@@ -27,6 +27,9 @@ lineSensor = ColorSensor(Port.S2)
 # Ultrasonic sensor initialised
 distanceSensor = UltrasonicSensor(Port.S4)
 
+# Button initialised
+button = TouchSensor(Port.S1)
+
 # Gyro initialised
 #gyroSensor = GyroSensor(Port.S3)
 #gyroSensor.reset_angle(0)
@@ -50,6 +53,16 @@ def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1)
         turnRate = turnGain * deviation
 
         robot.drive(driveSpeed, turnRate)
+
+    robot.stop()
+
+def FollowLineBackwards(followReflection, turnGain, abortCondition, abortConditionParam1):
+    while not(abortCondition(abortConditionParam1)):
+        deviation = followReflection - lineSensor.reflection()
+
+        turnRate = turnGain * deviation
+
+        robot.drive(-driveSpeed, turnRate)
 
     robot.stop()
 
@@ -90,6 +103,12 @@ def AbortOnTime(stopTime):
 
 def AbortOnDistance(distanceToObject):
     if(distanceSensor.distance() <= distanceToObject):
+        return True
+    
+    return False
+
+def AbortOnPress(button):
+    if(button):
         return True
     
     return False
@@ -232,6 +251,15 @@ FindDrivingAngle(True) # Find out where to drive to go past wall 2, going right
 DriveStraight(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
 FindObject(False) # Find the bottle
 
+
+#* - Home stretch (slut i midten)
+#'''
+Turn(180, True) # Turn 180 degrees
+robot.reset() # Reset angle counter of left motor to 0
+FollowLineBackwards(AbortOnPress, button.pressed())
+drivendistanceHomestretch = robot.distance()
+DriveStraightLength(drivendistanceHomestretch / 2)
+#'''
 
 '''
 return
