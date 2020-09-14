@@ -28,7 +28,7 @@ lineSensor = ColorSensor(Port.S2)
 #gyroSensor = GyroSensor(Port.S3)
 #gyroSensor.reset_angle(0)
 
-robot = DriveBase(leftMotor, rightMotor, wheel_diameter = 55.5, axle_track=120)
+robot = DriveBase(leftMotor, rightMotor, wheel_diameter = 55.5, axle_track=105)
 
 black = 10
 gray = 40
