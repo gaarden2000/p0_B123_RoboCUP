@@ -71,13 +71,28 @@ def Turn(degrees, toRight):
     else:
         robot.turn(-degrees)
 
-def CountLines(abortOnLine):
-    lines = 0
+class CountLinesValues:
+    stopOnLine = 3
+    currentLine = 0
+    transition = False
+
+    def __init__(self, stopOnLine):
+        self.stopOnLine = stopOnLine
+
+def CountLines(obj):
     threshold = 10
+    reflection = lineSensor.reflection()
     
-    while (lines <= abortOnLine):
-        if (lineSensor.reflection() <= grayWhite - threshold or lineSensor.reflection() >= grayWhite + threshold):
-            lines += 1
+    if (obj.currentLine >= obj.stopOnLine):
+        return True
+    
+    if (obj.transition == False and (reflection >= grayWhite - threshold and reflection <= grayWhite + threshold)):
+        obj.currentLine += 1
+        obj.transition = True
+        ev3.speaker.beep(2000, 100)
+
+    if (obj.transition == True and (reflection >= white - threshold and reflection <= white + threshold)):
+        obj.transition = False
 
 
 def AbortOnTime(stopTime):
@@ -145,7 +160,7 @@ FollowLine(grayWhite, 2, AbortOnReflection, black)
 #5 striped lines
 FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 1000) # drive straight for 1 sec after black line
 Turn(45, False)
-DriveStraight(CountLines, 3)
+DriveStraight(CountLines, CountLinesValues(3))
 Turn(45, True)
 
 #6
