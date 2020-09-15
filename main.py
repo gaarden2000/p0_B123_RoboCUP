@@ -74,13 +74,7 @@ def OnReflection(onReflectionParam):
     return False
 
 def OnNotReflection(onReflectionParam):
-    if onReflectionParam.threshold == 0:
-        onReflectionParam.threshold = 10
-
-    if lineSensor.reflection() >= onReflectionParam.reflection - onReflectionParam.threshold and lineSensor.reflection() <= onReflectionParam.reflection + onReflectionParam.threshold:
-        return False
-
-    return True
+    return not(OnReflection)
 
 def Turn(degrees, toRight):
     if toRight:
