@@ -139,48 +139,48 @@ def TestCondition(value):
 
 
 #0 START - drive until first black line
-FollowLine(grayWhite, 2, OnReflectionParam(black, 10))
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 500)
 
 #1 Starts on first black line
 Turn(45, True)
 DriveStraightLength(100)
-DriveStraight(OnReflectionParam(gray, 5))
-DriveStraight(OnNotReflectionParam(gray, 5))
+DriveStraight(OnReflection, OnReflectionParam(gray, 5))
+DriveStraight(OnNotReflection, OnReflectionParam(gray, 5))
 Turn(45, False)
-DriveStraightLength(100)
-FollowLine(grayWhite, 2, OnReflectionParam(black, 10)
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 
 
 #2 Second black line
 Turn(45, False)
-DriveStraight(OnReflectionParam(gray, 10))
+DriveStraightLength(100)
+DriveStraight(OnReflection, OnReflectionParam(gray, 10))
 Turn(45, True)
-FollowLine(grayWhite, 2, OnReflectionParam(black, 5))
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 5))
 
 ev3.speaker.beep(500, 100)
 
 
 #3 first bottle
 Turn(70, False)
-DriveStraight(OnReflectionParam(grayWhite, 10))
+DriveStraight(OnReflection, OnReflectionParam(grayWhite, 10))
 Turn(70, True)
-FollowLine(grayWhite, 2, OnReflectionParam(black, 10))
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 
 
 #4 bridge
-FollowLine(grayWhite, 2, OnReflectionParam(black, 10))
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 
 #5 striped lines
 FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000) # drive straight for 1 sec after black line
 Turn(45, False)
-DriveStraight(CountLines, CountLinesValues(7))
+DriveStraight(CountLines, CountLines, CountLinesValues(7))
 Turn(45, True)
 
 #6
@@ -193,7 +193,7 @@ DriveStraightLength(350)
 Turn(70, False)
 DriveStraightLength(380)
 Turn(45, True)
-FollowLine(grayWhite, 2, AbortOnReflectionParam(black, 10))
+FollowLine(grayWhite, 2, OnReflection, AbortOnReflectionParam(black, 10))
 
 
 '''
