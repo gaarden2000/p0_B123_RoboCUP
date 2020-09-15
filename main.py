@@ -180,7 +180,7 @@ FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 #5 striped lines
 FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000) # drive straight for 1 sec after black line
 Turn(45, False)
-DriveStraight(CountLines, CountLines, CountLinesValues(7))
+DriveStraight(CountLines, CountLinesValues(7))
 Turn(45, True)
 
 #6
