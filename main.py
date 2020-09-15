@@ -82,27 +82,29 @@ def Turn(degrees, toRight):
     else:
         robot.turn(-degrees)
 
-class CountLinesValues:
-    stopOnLine = 3
+class CountLinesParam:
     currentLine = 0
     transition = False
 
-    def __init__(self, stopOnLine):
+    def __init__(self, stopOnLine, startColor, transitionColor, threshold):
         self.stopOnLine = stopOnLine
+        self.startColor = startColor
+        self.transitionColor = transitionColor
+        self.threshold = threshold
 
 def CountLines(obj):
-    threshold = 10
+    threshold = obj.threshold
     reflection = lineSensor.reflection()
     
     if (obj.currentLine >= obj.stopOnLine):
         return True
     
-    if (obj.transition == False and (reflection >= grayWhite - threshold and reflection <= grayWhite + threshold)):
+    if (obj.transition == False and (reflection >= obj.startColor - threshold and reflection <= obj.startColor + threshold)):
         obj.currentLine += 1
         obj.transition = True
         ev3.speaker.beep(2000, 100)
 
-    if (obj.transition == True and (reflection >= white - threshold and reflection <= white + threshold)):
+    if (obj.transition == True and (reflection >= obj.transitionColor - threshold and reflection <= obj.transitionColor + threshold)):
         obj.transition = False
 
 
@@ -153,7 +155,7 @@ Turn(45, False)
 DriveStraightLength(100)
 DriveStraight(OnReflection, OnReflectionParam(gray, 10))
 Turn(45, True)
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 5))
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 
@@ -170,15 +172,24 @@ ev3.speaker.beep(500, 100)
 #4 bridge
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
+ev3.speaker.beep(500, 100)
+
 
 #5 striped lines
-FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000) # drive straight for 1 sec after black line
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+DriveStraightLength(100) # cross black line
+FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight for X sec after black line
 Turn(45, False)
-DriveStraight(CountLines, CountLinesValues(7))
+DriveStraight(CountLines, CountLinesParam(3, gray, white, 10))
 Turn(45, True)
 
+ev3.speaker.beep(500, 100)
+
+
 #6
-#...
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+
+ev3.speaker.beep(500, 100)
 
 
 #7
