@@ -24,6 +24,9 @@ grabberMotor = Motor(Port.C)
 # Colour sensor initialised
 lineSensor = ColorSensor(Port.S2)
 
+# Ultrasonic sensor initialised
+distanceSensor = UltrasonicSensor(Port.S4)
+
 # Gyro initialised
 #gyroSensor = GyroSensor(Port.S3)
 #gyroSensor.reset_angle(0)
@@ -116,7 +119,7 @@ def AbortOnTime(stopTime):
 
 def Grab(close):
     if close:
-        grabberMotor.run_until_stalled(-100, Stop.HOLD, 50)
+        grabberMotor.run_until_stalled(-100, Stop.HOLD, 80)
     else:
         grabberMotor.run_until_stalled(150, Stop.COAST, 25)
 
@@ -132,6 +135,41 @@ def TestCondition(value):
     else:
         return False
 
+def AbortOnDistance(distanceToObject):
+    if(distanceSensor.distance() <= distanceToObject):
+        return True
+    
+    return False
+
+class KeyValue:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+logger = DataLog('dist', 'myLog', True, 'csv', False)
+
+def FindClosestObject(direction, scanDegrees, scanDistance, offset):
+    distances = []
+    degrees = 0
+    
+    while(degrees <= scanDegrees):
+        dist = distanceSensor.distance()
+
+        # get values below scan distance
+        if (dist < scanDistance):
+            distances.append(KeyValue(dist, degrees))
+
+        Turn(1, direction)
+        degrees += 1
+    
+    median = int(len(distances) / 2)
+    closest = distances[median]
+
+    logger.log(str(closest.key) + " - " + str(closest.value))
+
+    Turn(9 + scanDegrees - closest.value, False)
+    return closest.key - offset
+
 
 
 #0 START - drive until first black line
@@ -141,29 +179,37 @@ ev3.speaker.beep(500, 500)
 
 #1 Starts on first black line
 Turn(45, True)
-DriveStraightLength(100)
-DriveStraight(OnReflection, OnReflectionParam(gray, 5))
-DriveStraight(OnNotReflection, OnReflectionParam(gray, 5))
+DriveStraightLength(100) # drive 10 cm to clear black line
+DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
+DriveStraight(OnReflection, OnReflectionParam(white, 10)) # drive until white
 Turn(45, False)
+
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 
 
 #2 Second black line
-Turn(45, False)
+Turn(45, True)
 DriveStraightLength(100)
 DriveStraight(OnReflection, OnReflectionParam(gray, 10))
-Turn(45, True)
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+Turn(5, True)
+distanceToBottle = FindClosestObject(True, 90, 500, 55)
+DriveStraightLength(distanceToBottle)
+Grab(True)
+DriveStraightLength(250)
+Grab(False)
+DriveStraightLength(-300)
+Turn(180, False)
 
 ev3.speaker.beep(500, 100)
 
 
 #3 first bottle
-Turn(70, False)
-DriveStraight(OnReflection, OnReflectionParam(grayWhite, 10))
-Turn(70, True)
+Turn(45, True)
+#DriveStraightLength(200)
+DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+Turn(45, True)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
