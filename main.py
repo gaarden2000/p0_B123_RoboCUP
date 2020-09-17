@@ -53,9 +53,35 @@ def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1)
 
     robot.stop()
 
+def FollowInnerLine(followReflection, turnGain, abortCondition, abortConditionParam1):
+    while not(abortCondition(abortConditionParam1)):
+        deviation = lineSensor.reflection() - followReflection
+
+        turnRate = turnGain * deviation
+
+        robot.drive(driveSpeed, turnRate)
+
+    robot.stop()   
+
+def FollowLineBackwards(followReflection, turnGain, abortCondition, abortConditionParam1):
+    while not(abortCondition(abortConditionParam1)):
+        deviation = followReflection - lineSensor.reflection()
+
+        turnRate = turnGain * deviation
+
+        robot.drive(-driveSpeed, turnRate)
+
+    robot.stop()
+
 def DriveStraight(abortCondition, abortConditionParam1):
     while not(abortCondition(abortConditionParam1)):
         robot.drive(driveSpeed, 0)
+        
+    robot.stop()
+
+def DriveStraightBackwards(abortCondition, abortConditionParam1):
+    while not(abortCondition(abortConditionParam1)):
+        robot.drive(-driveSpeed, 0)
         
     robot.stop()
 
@@ -110,11 +136,34 @@ def CountLines(obj):
     if (obj.transition == True and (reflection >= obj.transitionColor - threshold and reflection <= obj.transitionColor + threshold)):
         obj.transition = False
 
+def AbortOnReflection(reflection):
+    if lineSensor.reflection() < reflection:
+        return True
+
+    return False
 
 def AbortOnTime(stopTime):
     if (stopwatch.time() > stopTime):
         return True
 
+    return False
+
+def AbortOnDistance(distanceToObject):
+    if(distanceSensor.distance() <= distanceToObject):
+        return True
+    
+    return False
+
+def abortOnDistanceTravelled(distanceToTravel):
+    if(distanceToTravel <= robot.distance()):
+        return True
+    
+    return False
+
+def AbortOnPress(button):
+    if(button):
+        return True
+    
     return False
 
 def Grab(close):
@@ -140,6 +189,52 @@ def AbortOnDistance(distanceToObject):
         return True
     
     return False
+# DriveToObject
+# Used hardware: Ultrasonic sensor, motors
+# Input: Wanted distance from the object in centimeters
+# Output: None
+# Remarks: Drives directly towards object until the wanted distance is reached. 
+def DriveToObject(cm):
+    distanceToObject = distanceSensor.distance()
+    DriveStraight(AbortOnDistance, cm*10)
+
+# FindDrivingAngle
+# Used hardware: Ultrasonic sensor, motors
+# Input: Direction to turn in when finding angle
+# Output: None
+# Remarks: Turns to find the angle at which the car can move, based on corners of the objects the car is moving between. 
+def FindDrivingAngle(direction):
+    angleVar = 0
+    startFound = False
+    varFound = False
+
+
+    while(startFound != True):
+        distanceVar = distanceSensor.distance()
+        Turn(2, direction)
+        if(distanceSensor.distance() - distanceVar >= 100):
+            startFound = True
+
+    while(varFound != True):
+        distanceVar = distanceSensor.distance()
+        angleVar += 2
+        Turn(2, direction)
+        if(distanceSensor.distance() - distanceVar > 100):
+            varFound = True
+    
+    Turn(angleVar / 2, not direction)
+
+# FindObject
+# Used hardware: Ultrasonic sensor, motors
+# Input: Direction to turn in when finding object
+# Output: None
+# Remarks: Looks for object at 2 degree intervals 
+def FindObject(direction):
+    while(distanceSensor.distance() < distanceVar - 20):
+        distanceVar = distanceSensor.distance()
+        Turn(2, direction)
+        
+
 
 class KeyValue:
     def __init__(self, key, value):
@@ -226,6 +321,7 @@ FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight 
 Turn(45, False)
 DriveStraight(CountLines, CountLinesParam(3, gray, white, 10))
 Turn(45, True)
+#'''
 
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
@@ -260,113 +356,40 @@ driveSpeed = 100
 ev3.speaker.beep(500, 100)
 wait(10000)
 
-#7
+#7 Around the bottles
+'''
 Turn(45, True)
 DriveStraightLength(350)
 Turn(70, False)
 DriveStraightLength(380)
 Turn(45, True)
-FollowLine(grayWhite, 2, OnReflection, AbortOnReflectionParam(black, 10))
+FollowLine(grayWhite, 2, AbortOnReflection, black)
+#'''
 
-
+#8 - Walls
 '''
-return
+Turn(15, True)
+DriveToObject(15) # Go towards wall 1
+FindDrivingAngle(False) # Find out where to drive to go towards wall 2, going left
+robot.reset() # Reset the written angle to 0, ensuring more precision during calculation
+DriveToObject(20) # Go towards wall 2
+drivenDistanceWalls = robot.distance() # Finds distance travelled towards wall 2
+FindDrivingAngle(True) # Find out where to drive to go past wall 2, going right
+DriveStraightLength(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
+FindObject(False) # Find the bottle
+#'''
 
+#* - Home stretch (slut i midten)
 
+#* - Home stretch v3 (slut i midten)
+#'''
 
-    # Line follow code
-    # Calculate deviation from the threshold
-    deviation = threshold -lineSensor.reflection()
+FollowLine(grayWhite, 2.5, AbortOnReflection, black)
 
-    #proportionalGain = deviation**2 * 1/10 + 1
-
-    #proportionalGain = 2 # Only test case
-
-    turnRate = proportionalGain * deviation
-
-    robot.drive(driveSpeed,turnRate)
-    
-    if lineSensor.reflection() < 10:
-        ev3.speaker.beep(500, 50)
-        activationLine += 1
-    
-    if activationLine == 1:
-        #ev3.speaker.beep(500, 15500)
-        gyroValue1 = gyroSensor.angle() # find current angle of robot
-        turnRate = -30 # change turn rate to go to broken line
-        gyroDelta = 0
-        while(gyroDelta < 35): # while the robot should be turning
-            #ev3.speaker.beep(500, 50)
-            robot.drive(driveSpeed,turnRate)
-            gyroDelta = gyroValue1 - gyroSensor.angle() # calculate delta to determine when to stop turning
-        ev3.speaker.beep(500, 50)
-        
-
-        colorChange = False
-        while lineSensor.reflection() > 65 or not(colorChange):
-            robot.drive(driveSpeed,0)
-
-            if (lineSensor.reflection() < 65 - 10)
-                colorChange = True
-
-        # white
-        if lineSensor.reflection() > 65
-            while (lineSensor.reflection() > 55)
-                robot.drive(driveSpeed,0)
-        
-        # not white
-
-
-        while lineSensor.reflection() > 65:
-            robot.drive(driveSpeed,0)
-        while lineSensor.reflection() < 50:
-            robot.drive(driveSpeed,0)
-        while lineSensor.reflection() > 65:
-            robot.drive(driveSpeed,0)
-
-        activationLine += 1
-        continue
-
-        gyroValue1 = gyroSensor.angle() # find current angle of robot
-        turnRate = -100 # change turn rate to go to broken line
-        gyroDelta = 0
-        while(gyroDelta < 70): # while the robot should be turning
-            #ev3.speaker.beep(500, 50)
-            robot.drive(driveSpeed,turnRate)
-            gyroDelta = gyroValue1 - gyroSensor.angle() # calculate delta to determine when to stop turni
-
-        activationLine += 1
-
-    if activationLine == 3:
-        ev3.speaker.beep(10000, 50)
-        gyroValue1 = gyroSensor.angle() # find current angle of robot
-        turnRate = -30 # change turn rate to go to broken line
-        gyroDelta = 0
-        while(gyroDelta < 70): # while the robot should be turning
-            #ev3.speaker.beep(500, 50)
-            robot.drive(driveSpeed,turnRate)
-            gyroDelta =  gyroValue1 - gyroSensor.angle() # calculate delta to determine when to stop turning
-
-        while lineSensor.reflection() > 65:
-            robot.drive(driveSpeed,0)
-
-        gyroValue1 = gyroSensor.angle() # find current angle of robot
-        turnRate = 60 # change turn rate to go to broken line
-        gyroDelta = 0
-        while(gyroDelta < 70): # while the robot should be turning
-            #ev3.speaker.beep(500, 50)
-            robot.drive(driveSpeed,turnRate)
-            gyroDelta = gyroSensor.angle() - gyroValue1# calculate delta to determine when to stop turni
-
-        activationLine += 1
-        #ev3.speaker.beep(10000, 50)
-
-    #if activationLine == 2:
-    #    gyroValue1 = gyroSensor.angle()
-    #    turnRate = 30
-    #    while(gyroDelta < 70):
-    #        robot.drive(driveSpeed, turnRate)
-    #        gyroDelta = gyroSensor.angle() - gyroValue1
-    #    activationLine = 0
-
-'''
+Turn(5, True)
+robot.reset()
+DriveStraight(abortOnDistanceTravelled, 50)
+FollowInnerLine(grayWhite, 2, AbortOnTime, 10000)
+FollowInnerLine(grayWhite, 2, AbortOnDistance, 1500)
+wait(5000)
+#'''
