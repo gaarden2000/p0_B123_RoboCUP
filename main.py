@@ -165,8 +165,6 @@ def FindClosestObject(direction, scanDegrees, scanDistance, offset):
     median = int(len(distances) / 2)
     closest = distances[median]
 
-    logger.log(str(closest.key) + " - " + str(closest.value))
-
     Turn(9 + scanDegrees - closest.value, False)
     return closest.key - offset
 
@@ -229,14 +227,38 @@ Turn(45, False)
 DriveStraight(CountLines, CountLinesParam(3, gray, white, 10))
 Turn(45, True)
 
-ev3.speaker.beep(500, 100)
-
-
-#6
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 
+
+#6 circle
+DriveStraightLength(100)
+Turn(90, False)
+
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+
+ev3.speaker.beep(500, 100)
+
+
+#6.5 circle
+DriveStraightLength(300)
+wait(1000)
+
+distanceToBottle = FindClosestObject(False, 90, 500, 55)
+DriveStraightLength(distanceToBottle)
+Grab(True)
+DriveStraightLength(-distanceToBottle)
+Grab(False)
+DriveStraightLength(-50)
+'''
+driveSpeed = 50
+DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5))
+driveSpeed = 100
+'''
+
+ev3.speaker.beep(500, 100)
+wait(10000)
 
 #7
 Turn(45, True)
