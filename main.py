@@ -34,7 +34,7 @@ button = TouchSensor(Port.S1)
 #gyroSensor = GyroSensor(Port.S3)
 #gyroSensor.reset_angle(0)
 
-robot = DriveBase(leftMotor, rightMotor, wheel_diameter = 55.5, axle_track=120)
+robot = DriveBase(leftMotor, rightMotor, wheel_diameter = 55.5, axle_track=105)
 
 black = 10
 gray = 40
@@ -56,6 +56,16 @@ def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1)
 
     robot.stop()
 
+def FollowInnerLine(followReflection, turnGain, abortCondition, abortConditionParam1):
+    while not(abortCondition(abortConditionParam1)):
+        deviation = lineSensor.reflection() - followReflection
+
+        turnRate = turnGain * deviation
+
+        robot.drive(driveSpeed, turnRate)
+
+    robot.stop()   
+
 def FollowLineBackwards(followReflection, turnGain, abortCondition, abortConditionParam1):
     while not(abortCondition(abortConditionParam1)):
         deviation = followReflection - lineSensor.reflection()
@@ -69,6 +79,12 @@ def FollowLineBackwards(followReflection, turnGain, abortCondition, abortConditi
 def DriveStraight(abortCondition, abortConditionParam1):
     while not(abortCondition(abortConditionParam1)):
         robot.drive(driveSpeed, 0)
+        
+    robot.stop()
+
+def DriveStraightBackwards(abortCondition, abortConditionParam1):
+    while not(abortCondition(abortConditionParam1)):
+        robot.drive(-driveSpeed, 0)
         
     robot.stop()
 
@@ -107,6 +123,12 @@ def AbortOnDistance(distanceToObject):
     
     return False
 
+def abortOnDistanceTravelled(distanceToTravel):
+    if(distanceToTravel <= robot.distance()):
+        return True
+    
+    return False
+
 def AbortOnPress(button):
     if(button):
         return True
@@ -138,7 +160,7 @@ def TestCondition(value):
 # Remarks: Drives directly towards object until the wanted distance is reached. 
 def DriveToObject(cm):
     distanceToObject = distanceSensor.distance()
-    DriveStraight(AbortOnDistance, distanceToObject - cm)
+    DriveStraight(AbortOnDistance, cm*10)
 
 # FindDrivingAngle
 # Used hardware: Ultrasonic sensor, motors
@@ -147,7 +169,10 @@ def DriveToObject(cm):
 # Remarks: Turns to find the angle at which the car can move, based on corners of the objects the car is moving between. 
 def FindDrivingAngle(direction):
     angleVar = 0
-    
+    startFound = False
+    varFound = False
+
+
     while(startFound != True):
         distanceVar = distanceSensor.distance()
         Turn(2, direction)
@@ -161,7 +186,7 @@ def FindDrivingAngle(direction):
         if(distanceSensor.distance() - distanceVar > 100):
             varFound = True
     
-    Turn(angleVar / 2, -direction)
+    Turn(angleVar / 2, not direction)
 
 # FindObject
 # Used hardware: Ultrasonic sensor, motors
@@ -182,12 +207,12 @@ def FindObject(direction):
 
 
 #GRAB
-Grab(True)
+#Grab(True)
 
-wait(5000)
+#wait(5000)
 
 #RELEASE
-Grab(False)
+#Grab(False)
 
 
 
@@ -200,7 +225,7 @@ FollowLine(grayWhite, 2, AbortOnReflection, black)
 #ev3.speaker.beep(500, 500)
 
 #2
-#'''
+'''
 Turn(70, True)
 DriveStraight(AbortOnReflection, grayWhite)
 Turn(70, False)
@@ -208,7 +233,7 @@ FollowLine(grayWhite, 2, AbortOnReflection, black)
 #'''
 
 #3 - first bottle
-#'''
+'''
 Turn(70, False)
 DriveStraight(AbortOnReflection, grayWhite)
 Turn(70, True)
@@ -216,23 +241,23 @@ FollowLine(grayWhite, 2, AbortOnReflection, black)
 #'''
 
 #4 bridge
-#'''
+'''
 FollowLine(grayWhite, 2, AbortOnReflection, black)
 #'''
 
 #5 striped lines
-#'''
+'''
 FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 1000) # drive straight for 1 sec after black line
 Turn(45, False)
 DriveStraight(CountLines, 3)
 Turn(45, True)
 #'''
 
-#6
+#6 Target
 #...
 
-#7
-#'''
+#7 Around the bottles
+'''
 Turn(45, True)
 DriveStraight(3000)
 Turn(90, False)
@@ -242,24 +267,44 @@ FollowLine(grayWhite, 2, AbortOnReflection, black)
 #'''
 
 #8 - Walls
-DriveToObject(20) # Go towards wall 1
+'''
+Turn(15, True)
+DriveToObject(15) # Go towards wall 1
 FindDrivingAngle(False) # Find out where to drive to go towards wall 2, going left
-leftMotor.reset_angle(0) # Reset the written angle of the motor to 0, ensuring more precision during calculation
+robot.reset() # Reset the written angle to 0, ensuring more precision during calculation
 DriveToObject(20) # Go towards wall 2
-drivenDistanceWalls = leftMotor.angle() # Finds distance travelled towards wall 2
+drivenDistanceWalls = robot.distance() # Finds distance travelled towards wall 2
 FindDrivingAngle(True) # Find out where to drive to go past wall 2, going right
-DriveStraight(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
+DriveStraightLength(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
 FindObject(False) # Find the bottle
-
+#'''
 
 #* - Home stretch (slut i midten)
-#'''
+'''
 Turn(180, True) # Turn 180 degrees
 robot.reset() # Reset angle counter of left motor to 0
-FollowLineBackwards(AbortOnPress, button.pressed())
-drivendistanceHomestretch = robot.distance()
-DriveStraightLength(drivendistanceHomestretch / 2)
+FollowLineBackwards(grayWhite, 2, AbortOnPress, button.pressed())
+drivenDistanceHomeStretch = robot.distance()
+DriveStraightLength(drivenDistanceHomeStretch / 2)
 #'''
+
+#* - Home stretch v2 (slut i midten)
+'''
+robot.reset()
+FollowInnerLine(grayWhite, 2, AbortOnDistance, 20 * 10) # 20cm
+drivenDistanceHomeStretch = robot.distance()
+robot.reset()
+DriveStraightBackwards(abortOnDistanceTravelled, drivenDistanceHomeStretch / 2)
+#'''
+
+#* - Home stretch v2 (slut i midten)
+#'''
+Turn(10, True)
+
+FollowInnerLine(grayWhite, 2, AbortOnDistance, 250 * 10)
+wait(5000)
+#'''
+
 
 '''
 return
