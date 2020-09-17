@@ -219,7 +219,7 @@ def FindObject(direction):
 
 #1
 #'''
-FollowLine(grayWhite, 2, AbortOnReflection, black)
+#FollowLine(grayWhite, 2, AbortOnReflection, black)
 #'''
 
 #ev3.speaker.beep(500, 500)
@@ -280,28 +280,17 @@ FindObject(False) # Find the bottle
 #'''
 
 #* - Home stretch (slut i midten)
-'''
-Turn(180, True) # Turn 180 degrees
-robot.reset() # Reset angle counter of left motor to 0
-FollowLineBackwards(grayWhite, 2, AbortOnPress, button.pressed())
-drivenDistanceHomeStretch = robot.distance()
-DriveStraightLength(drivenDistanceHomeStretch / 2)
+
+#* - Home stretch v3 (slut i midten)
 #'''
 
-#* - Home stretch v2 (slut i midten)
-'''
+FollowLine(grayWhite, 2.5, AbortOnReflection, black)
+
+Turn(5, True)
 robot.reset()
-FollowInnerLine(grayWhite, 2, AbortOnDistance, 20 * 10) # 20cm
-drivenDistanceHomeStretch = robot.distance()
-robot.reset()
-DriveStraightBackwards(abortOnDistanceTravelled, drivenDistanceHomeStretch / 2)
-#'''
-
-#* - Home stretch v2 (slut i midten)
-#'''
-Turn(10, True)
-
-FollowInnerLine(grayWhite, 2, AbortOnDistance, 250 * 10)
+DriveStraight(abortOnDistanceTravelled, 50)
+FollowInnerLine(grayWhite, 2, AbortOnTime, 10000)
+FollowInnerLine(grayWhite, 2, AbortOnDistance, 1500)
 wait(5000)
 #'''
 
