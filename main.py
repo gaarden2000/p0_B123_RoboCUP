@@ -263,7 +263,7 @@ def FindClosestObject(direction, scanDegrees, scanDistance, offset):
     Turn(9 + scanDegrees - closest.value, False)
     return closest.key - offset
 
-
+'''
 
 #0 START - drive until first black line
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
@@ -321,7 +321,7 @@ FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight 
 Turn(45, False)
 DriveStraight(CountLines, CountLinesParam(3, gray, white, 10))
 Turn(45, True)
-#'''
+'''
 
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
@@ -338,9 +338,9 @@ ev3.speaker.beep(500, 100)
 
 
 #6.5 circle
-DriveStraightLength(300)
+DriveStraightLength(150)
 wait(1000)
-
+'''
 distanceToBottle = FindClosestObject(False, 90, 500, 55)
 DriveStraightLength(distanceToBottle)
 Grab(True)
@@ -350,24 +350,39 @@ DriveStraightLength(-50)
 '''
 driveSpeed = 50
 DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5))
+DriveStraightLength(200)
+Turn(90, False)
+distanceToBottle = FindClosestObject(True, 90, 500, 55)
+DriveStraightLength(distanceToBottle)
+Grab(True)
+Turn(180, False)
+DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5))
+DriveStraightLength(20)
+Grab(False)
+DriveStraightLength(-200)
+Turn(40, True)
 driveSpeed = 100
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+DriveStraightLength(50)
+FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 5000)
+
 '''
 
 ev3.speaker.beep(500, 100)
 wait(10000)
 
 #7 Around the bottles
-'''
+
 Turn(45, True)
 DriveStraightLength(350)
 Turn(70, False)
 DriveStraightLength(380)
 Turn(45, True)
 FollowLine(grayWhite, 2, AbortOnReflection, black)
-#'''
+
 
 #8 - Walls
-'''
+
 Turn(15, True)
 DriveToObject(15) # Go towards wall 1
 FindDrivingAngle(False) # Find out where to drive to go towards wall 2, going left
@@ -377,12 +392,14 @@ drivenDistanceWalls = robot.distance() # Finds distance travelled towards wall 2
 FindDrivingAngle(True) # Find out where to drive to go past wall 2, going right
 DriveStraightLength(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
 FindObject(False) # Find the bottle
-#'''
+
 
 #* - Home stretch (slut i midten)
 
 #* - Home stretch v3 (slut i midten)
-#'''
+
+
+
 
 FollowLine(grayWhite, 2.5, AbortOnReflection, black)
 
@@ -392,4 +409,4 @@ DriveStraight(abortOnDistanceTravelled, 50)
 FollowInnerLine(grayWhite, 2, AbortOnTime, 10000)
 FollowInnerLine(grayWhite, 2, AbortOnDistance, 1500)
 wait(5000)
-#'''
+'''
