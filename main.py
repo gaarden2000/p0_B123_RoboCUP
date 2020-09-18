@@ -310,15 +310,16 @@ def FindClosestObject(direction, scanDegrees, scanDistance, offset):
     closest = distances[median]
 
     Turn(9 + scanDegrees - closest.value, False)
-    return closest.key - offset
+    return KeyValue(closest.key - offset, closest.value)
 
-'''
+
 
 #0 START - drive until first black line
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 500)
-'''
+
+
 #1 Starts on first black line
 Turn(45, True)
 DriveStraightLength(100) # drive 10 cm to clear black line
@@ -347,7 +348,7 @@ Turn(45, True)
 DriveStraightLength(100)
 DriveStraight(OnReflection, OnReflectionParam(gray, 10))
 Turn(5, False)
-distanceToBottle = FindClosestObject(True, 90, 500, 55)
+distanceToBottle = FindClosestObject(True, 90, 500, 55).key
 DriveStraightLength(distanceToBottle)
 Grab(True)
 DriveStraightLength(250)
@@ -370,6 +371,7 @@ ev3.speaker.beep(500, 100)
 
 #4 bridge
 DriveStraightLength(200) # clear black line
+
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
@@ -382,13 +384,11 @@ FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight 
 Turn(45, False)
 DriveStraight(CountLines, CountLinesParam(3, gray, white, 10))
 Turn(45, True)
-'''
-
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 
-'''
+
 #6 circle
 DriveStraightLength(100)
 Turn(90, False)
@@ -400,47 +400,28 @@ ev3.speaker.beep(500, 100)
 
 #6.5 circle
 DriveStraightLength(150)
-wait(1000)
-'''
-distanceToBottle = FindClosestObject(False, 90, 500, 55)
-DriveStraightLength(distanceToBottle)
-Grab(True)
-DriveStraightLength(-distanceToBottle)
-Grab(False)
-DriveStraightLength(-50)
-'''
 driveSpeed = 50
 DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5))
 DriveStraightLength(200)
 Turn(90, False)
 distanceToBottle = FindClosestObject(True, 90, 500, 55)
-DriveStraightLength(distanceToBottle)
+DriveStraightLength(distanceToBottle.key)
 Grab(True)
-Turn(180, False)
-DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5))
-DriveStraightLength(20)
+
+DriveStraightLength(-distanceToBottle.key)
+Turn(90 - distanceToBottle.value, True)
+DriveStraightLength(-250)
 Grab(False)
-DriveStraightLength(-200)
-Turn(40, True)
+
 driveSpeed = 100
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
-DriveStraightLength(50)
-FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 5000)
 
-'''
-
-ev3.speaker.beep(500, 100)
-wait(10000)
-
-
-
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
-
-ev3.speaker.beep(500, 100)
-
-
-
-DriveStraightLength(50)
+DriveStraightLength(-400) #????? unknown value from drviestraight count lines
+Turn(180, False)
+DriveStraightLength(300)
+Turn(45, False)
+DriveStraightLength(200)
+DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+Turn(45, False)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
@@ -455,7 +436,9 @@ Turn(70, False)
 DriveStraightLength(380)
 Turn(45, True)
 FollowLine(grayWhite, 2, AbortOnReflection, black)
-'''
+
+ev3.speaker.beep(500, 100)
+
 
 #8 - Walls
 
