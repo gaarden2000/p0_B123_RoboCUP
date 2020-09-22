@@ -13,6 +13,9 @@ from pybricks.media.ev3dev import SoundFile, ImageFile
 # This program requires LEGO EV3 MicroPython v2.0 or higher.
 # Click "Open user guide" on the EV3 extension tab for more information.
 
+# Logger for debugging (connect through SSH to view files)
+#logger = DataLog('dist', 'myLog', True, 'csv', False)
+
 ev3 = EV3Brick()
 
 # Motors initialised
@@ -263,8 +266,6 @@ class KeyValue:
     def __init__(self, key, value):
         self.key = key
         self.value = value
-
-logger = DataLog('dist', 'myLog', True, 'csv', False)
 
 def FindClosestObject(direction, scanDegrees, scanDistance, offset):
     distances = []
