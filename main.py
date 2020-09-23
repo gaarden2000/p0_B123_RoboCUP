@@ -105,6 +105,18 @@ def OnReflection(onReflectionParam):
 
     return False
 
+class OnTurnParam:
+    def __init__(self, angle):
+        self.angle = angle
+        robot.reset()
+
+# Returns True when robot has turned X angle.
+def OnTurn(onTurnParam):
+    if (robot.angle() > onTurnParam.angle):
+        return True
+
+    return False
+
 def OnNotReflection(onReflectionParam):
     return not(OnReflection)
 
@@ -360,15 +372,52 @@ Turn(45, True)
 #DriveStraightLength(200)
 DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
 Turn(45, True)
+
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 #'''
 
 #4 bridge
-'''
-DriveStraightLength(200) # clear black line
 
+DriveStraightLength(100) # clear black line
+Turn(90, False)
+
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+
+ev3.speaker.beep(500, 100)
+
+
+#4.5 bridge
+
+DriveStraightLength(-50)
+Turn(45, False)
+DriveStraightLength(140)
+Turn(90, True)
+
+driveSpeed = 50
+
+DriveStraightLength(300)
+Turn(90, False)
+
+driveSpeed = 100
+
+DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+Turn(45, True)
+
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(gray - 20, 10)) # alternative to stop time
+Turn(45, True)
+DriveStraightLength(300)
+Turn(135, False)
+DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+Turn(90, True)
+
+driveSpeed = 50
+FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000) # Align with line
+FollowLine(grayWhite, 2, OnTurn, OnTurnParam(90))
+driveSpeed = 100
+
+Turn(180, True)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
