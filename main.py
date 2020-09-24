@@ -66,25 +66,9 @@ def FollowInnerLine(followReflection, turnGain, abortCondition, abortConditionPa
 
     robot.stop()   
 
-def FollowLineBackwards(followReflection, turnGain, abortCondition, abortConditionParam1):
-    while not(abortCondition(abortConditionParam1)):
-        deviation = followReflection - lineSensor.reflection()
-
-        turnRate = turnGain * deviation
-
-        robot.drive(-driveSpeed, turnRate)
-
-    robot.stop()
-
 def DriveStraight(abortCondition, abortConditionParam1):
     while not(abortCondition(abortConditionParam1)):
         robot.drive(driveSpeed, 0)
-        
-    robot.stop()
-
-def DriveStraightBackwards(abortCondition, abortConditionParam1):
-    while not(abortCondition(abortConditionParam1)):
-        robot.drive(-driveSpeed, 0)
         
     robot.stop()
 
@@ -175,35 +159,18 @@ def abortOnDistanceTravelled(distanceToTravel):
     
     return False
 
-def AbortOnPress(button):
-    if(button):
-        return True
-    
-    return False
-
 def Grab(close):
     if close:
         grabberMotor.run_until_stalled(-100, Stop.HOLD, 80)
     else:
         grabberMotor.run_until_stalled(150, Stop.COAST, 25)
 
-def Test(condition):
-    if not(condition):
-        ev3.speaker.beep(500, 500)
-    else:
-        ev3.speaker.beep(5000, 500)
-
-def TestCondition(value):
-    if value:
-        return True
-    else:
-        return False
-
 def AbortOnDistance(distanceToObject):
     if(distanceSensor.distance() <= distanceToObject):
         return True
     
     return False
+
 # DriveToObject
 # Used hardware: Ultrasonic sensor, motors
 # Input: Wanted distance from the object in centimeters
@@ -218,18 +185,6 @@ def DriveStraightLengthCond(abortCondition1, abortCondition2, abortConditionPara
        robot.drive(driveSpeed, 0)
 
     robot.stop() 
-
-
-# FindObject
-# Used hardware: Ultrasonic sensor, motors
-# Input: Direction to turn in when finding object
-# Output: None
-# Remarks: Looks for object at 2 degree intervals 
-def FindObject(direction):
-    while(distanceSensor.distance() < distanceVar - 20):
-        distanceVar = distanceSensor.distance()
-        Turn(2, direction)
-
 
 class KeyValue:
     def __init__(self, key, value):
@@ -260,100 +215,27 @@ def Snake(abortCondition, abortConditionParam1):
     direction = True
     Turn(45, not direction)
     robot.reset()
-    DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 50, grayWhite)
+    DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 150, grayWhite)
 
     while not(abortCondition(abortConditionParam1)):
-        Turn(100, direction)
+        Turn(90, direction)
 
         robot.reset()
-        DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 50, grayWhite)
+        DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 150, grayWhite)
 
         direction = not direction
 
-'''
-# FindDrivingAngle
-# Used hardware: Ultrasonic sensor, motors
-# Input: Direction to turn in when finding angle
-# Output: None
-# Remarks: Turns to find the angle at which the car can move, based on corners of the objects the car is moving between. 
-def FindDrivingAngle1(direction):
-    #angleVar = 0
-    startFound = False
-    varFound = False
-    distanceVar1 = 0
-    angle = 0
 
-    Turn(30, direction)
-    angle += 30
 
-    while(varFound != True):
-        distanceVar = distanceSensor.distance()
-        Turn(2, direction)
-        angle += 2
-        if(distanceSensor.distance() > distanceVar and distanceSensor.distance() - distanceVar <= 20 and distanceVar > distanceVar1 + 50):
-            varFound = True
-
-    return angle
-'''
-    
-'''
-def FindDrivingAngle2(direction):
-    distanceVar = 0
-    boolFound = False
-    angle = 0
-
-    while(boolFound != True):
-        distanceVar = distanceSensor.distance()
-        Turn(1, direction)
-        angle += 1
-        if(distanceSensor.distance() >= 1000):
-            boolFound = True
-
-    return angle
-'''
-
-def FindCorner(direction):
-    cornerFound = False
-    distanceVar = 0
-
-    while(cornerFound != True):
-        distanceVar = distanceSensor.distance()
-        Turn(2, True)
-        angle += 2
-        if(distanceSensor.distance() > distanceVar and distanceSensor.distance() - distanceVar > 80):
-            cornerFound = True
-    
-    DriveStraightLength(20)
-
-    Turn(45, True)
-
-def FollowWall(mmPerDrive, direction):
-    distanceToWall = 0
-
-    for x in range(0, 350/mmPerDrive +1):
-        DriveStraightLength(mmPerDrive)
-        
-        distanceToWall = FindClosestObject(direction, 90, 60, 70).key
-
-        if(distanceSensor.distance() < 20):
-            DriveStraightBackwards(AbortOnDistance, 20)
-
-        Turn(90, not direction)
-
-        if(x == 350/mmPerDrive):
-            DriveStraight(AbortOnDistance, 30)
-        x += 1
-    
-    return distanceSensor.distance()
-
+#'''
 #0 START - drive until first black line
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 500)
-
+#'''
 
 #1 Starts on first black line
-'''
+#'''
 Turn(45, True)
 DriveStraightLength(100) # drive 10 cm to clear black line
 DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
@@ -366,7 +248,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #2
-'''
+#'''
 Turn(45, False)
 DriveStraightLength(100) # drive 10 cm to clear black line
 DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
@@ -378,7 +260,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #3 Second black line
-'''
+#'''
 Turn(45, True)
 DriveStraightLength(100)
 DriveStraight(OnReflection, OnReflectionParam(gray, 10))
@@ -395,7 +277,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #3 first bottle
-'''
+#'''
 Turn(45, True)
 #DriveStraightLength(200)
 DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
@@ -407,7 +289,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #4 bridge
-'''
+#'''
 DriveStraightLength(100) # clear black line
 Turn(90, False)
 
@@ -417,7 +299,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #4.5 bridge
-'''
+#'''
 DriveStraightLength(-50)
 Turn(45, False)
 DriveStraightLength(140)
@@ -452,7 +334,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #5 striped lines
-'''
+#'''
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 DriveStraightLength(100) # cross black line
 FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight for X sec after black line
@@ -465,7 +347,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #6 circle
-'''
+#'''
 DriveStraightLength(100)
 Turn(90, False)
 
@@ -475,7 +357,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #6.5 circle
-'''
+#'''
 DriveStraightLength(150)
 driveSpeed = 50
 DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5))
@@ -505,7 +387,7 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #7 Around the bottles
-'''
+#'''
 DriveStraightLength(100)
 Turn(45, True)
 DriveStraightLength(350)
@@ -517,51 +399,24 @@ FollowLine(grayWhite, 2, AbortOnReflection, black)
 ev3.speaker.beep(500, 100)
 #'''
 
-
 #8 - Walls
 #'''
-DriveStraightLength(430) # Length till point
-
-Turn(110, False)
-FindCorner(True) # Syntax is FindCorner(direction to search for). Also moves forward and turns
-
-FollowWall(30, False) # Syntax is FollowWall(how far to drive per step, direction towards wall)
-
-Turn(90, True)
-FollowWall(30, False)
-
-DriveStraight(30)
+DriveStraightLength(430)
 Turn(45, False)
-
-Snek(abortOnReflection, grayWhite)
-
-## OBS: BEHOLD DET HERUNDER INDTIL VIDERE
-'''
-#Turn(10, True)
-DriveStraightLength(460) # Length till point
-angle1 = FindDrivingAngle1(False)
-
-robot.reset() # Reset the written angle to 0, ensuring more precision during calculation
-DriveToObject(15) # Go towards wall 2
-drivenDistanceWalls = robot.distance() # Finds distance travelled towards wall 2
-
-angle2 = FindDrivingAngle2(True) # Find out where to drive to go past wall 2, going right
-ev3.speaker.beep(500, 100)
-Turn(30, True)
-
-DriveStraightLength(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
-
-Turn(abs(angle2 - angle1 - 30), False)
+DriveToObject(13)
+Turn(90, True)
+DriveStraightLength(350)
+Turn(50, False)
 Snake(AbortOnReflection, grayWhite)
-#'''
+
+ev3.speaker.beep(500, 100)
 
 
 #* - Home stretch (slut i midten)
-'''
+
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-
 
 DriveStraightLength(100)
 Turn(45, False)
@@ -572,7 +427,6 @@ Turn(45, False)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-
 
 Turn(15, True)
 DriveStraightLength(100)
