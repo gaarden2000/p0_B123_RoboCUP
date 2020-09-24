@@ -210,6 +210,19 @@ def FindDrivingAngle1(direction):
     distanceVar1 = 0
     angle = 0
 
+    Turn(30, direction)
+    angle += 30
+
+    while(varFound != True):
+        distanceVar = distanceSensor.distance()
+        Turn(2, direction)
+        angle += 2
+        if(distanceSensor.distance() > distanceVar and distanceSensor.distance() - distanceVar <= 20 and distanceVar > distanceVar1 + 50):
+            varFound = True
+
+    return angle
+
+    '''
     while(startFound != True):
         distanceVar1 = distanceSensor.distance()
         Turn(2, direction)
@@ -223,8 +236,8 @@ def FindDrivingAngle1(direction):
         angle += 2
         if(distanceSensor.distance() > distanceVar and distanceSensor.distance() - distanceVar <= 20 and distanceVar > distanceVar1 + 50):
             varFound = True
+    '''
     
-    return angle
 
 def FindDrivingAngle2(direction):
     distanceVar = 0
@@ -233,8 +246,8 @@ def FindDrivingAngle2(direction):
 
     while(boolFound != True):
         distanceVar = distanceSensor.distance()
-        Turn(2, direction)
-        angle += 2
+        Turn(1, direction)
+        angle += 1
         if(distanceSensor.distance() >= 1000):
             boolFound = True
 
@@ -299,9 +312,6 @@ def Snek(abortCondition, abortConditionParam1):
         DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 50, grayWhite)
 
         direction = not direction
-
-
-
 
 
 
@@ -440,10 +450,15 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #8 - Walls
+#'''
+'''
 Turn(15, True)
 DriveToObject(20) # Go towards wall 1
 angle1 = FindDrivingAngle1(False) # Find out where to drive to go towards wall 2, going left
-
+'''
+#Turn(10, True)
+DriveStraightLength(440) # Length till point
+angle1 = FindDrivingAngle1(False)
 
 robot.reset() # Reset the written angle to 0, ensuring more precision during calculation
 DriveToObject(15) # Go towards wall 2
@@ -455,19 +470,15 @@ Turn(12, True)
 
 DriveStraightLength(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
 
-Turn(abs(angle2 - angle1), False)
+Turn(abs(angle2 - angle1 - 30), False)
 Snek(AbortOnReflection, grayWhite)
-
-#FindObject(False) # Find the bottle
-
+#'''
 
 #* - Home stretch (slut i midten)
 '''
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-
-
 
 
 DriveStraightLength(100)
@@ -481,10 +492,9 @@ FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 ev3.speaker.beep(500, 100)
 
 
-
 Turn(15, True)
 DriveStraightLength(100)
 FollowInnerLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 10000)
 FollowInnerLine(grayWhite, 2, AbortOnDistance, 1500)
 wait(5000)
-'''
+#'''
