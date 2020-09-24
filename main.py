@@ -312,7 +312,7 @@ def FindClosestObject(direction, scanDegrees, scanDistance, offset):
     Turn(9 + scanDegrees - closest.value, False)
     return KeyValue(closest.key - offset, closest.value)
 
-def Snek(abortCondition, abortConditionParam1):
+def Snake(abortCondition, abortConditionParam1):
     direction = True
     Turn(45, not direction)
     robot.reset()
@@ -521,7 +521,7 @@ Turn(12, True)
 DriveStraightLength(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
 
 Turn(abs(angle2 - angle1 - 30), False)
-Snek(AbortOnReflection, grayWhite)
+Snake(AbortOnReflection, grayWhite)
 #'''
 
 #* - Home stretch (slut i midten)
