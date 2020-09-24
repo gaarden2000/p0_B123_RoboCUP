@@ -211,62 +211,7 @@ def AbortOnDistance(distanceToObject):
 # Remarks: Drives directly towards object until the wanted distance is reached. 
 def DriveToObject(cm):
     distanceToObject = distanceSensor.distance()
-    DriveStraight(AbortOnDistance, cm*10)
-
-# FindDrivingAngle
-# Used hardware: Ultrasonic sensor, motors
-# Input: Direction to turn in when finding angle
-# Output: None
-# Remarks: Turns to find the angle at which the car can move, based on corners of the objects the car is moving between. 
-def FindDrivingAngle1(direction):
-    #angleVar = 0
-    startFound = False
-    varFound = False
-    distanceVar1 = 0
-    angle = 0
-
-    Turn(30, direction)
-    angle += 30
-
-    while(varFound != True):
-        distanceVar = distanceSensor.distance()
-        Turn(2, direction)
-        angle += 2
-        if(distanceSensor.distance() > distanceVar and distanceSensor.distance() - distanceVar <= 20 and distanceVar > distanceVar1 + 50):
-            varFound = True
-
-    return angle
-
-    '''
-    while(startFound != True):
-        distanceVar1 = distanceSensor.distance()
-        Turn(2, direction)
-        angle += 2
-        if(distanceSensor.distance() - distanceVar1 >= 50):
-            startFound = True
-
-    while(varFound != True):
-        distanceVar = distanceSensor.distance()
-        Turn(2, direction)
-        angle += 2
-        if(distanceSensor.distance() > distanceVar and distanceSensor.distance() - distanceVar <= 20 and distanceVar > distanceVar1 + 50):
-            varFound = True
-    '''
-    
-
-def FindDrivingAngle2(direction):
-    distanceVar = 0
-    boolFound = False
-    angle = 0
-
-    while(boolFound != True):
-        distanceVar = distanceSensor.distance()
-        Turn(1, direction)
-        angle += 1
-        if(distanceSensor.distance() >= 1000):
-            boolFound = True
-
-    return angle    
+    DriveStraight(AbortOnDistance, cm*10)   
 
 def DriveStraightLengthCond(abortCondition1, abortCondition2, abortConditionParam1, abortConditionParam2):
     while not(abortCondition1(abortConditionParam1) or abortCondition2(abortConditionParam2)):
@@ -284,7 +229,6 @@ def FindObject(direction):
     while(distanceSensor.distance() < distanceVar - 20):
         distanceVar = distanceSensor.distance()
         Turn(2, direction)
-        
 
 
 class KeyValue:
@@ -319,14 +263,88 @@ def Snek(abortCondition, abortConditionParam1):
     DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 50, grayWhite)
 
     while not(abortCondition(abortConditionParam1)):
-        Turn(90, direction)
+        Turn(100, direction)
 
         robot.reset()
         DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 50, grayWhite)
 
         direction = not direction
 
+'''
+# FindDrivingAngle
+# Used hardware: Ultrasonic sensor, motors
+# Input: Direction to turn in when finding angle
+# Output: None
+# Remarks: Turns to find the angle at which the car can move, based on corners of the objects the car is moving between. 
+def FindDrivingAngle1(direction):
+    #angleVar = 0
+    startFound = False
+    varFound = False
+    distanceVar1 = 0
+    angle = 0
 
+    Turn(30, direction)
+    angle += 30
+
+    while(varFound != True):
+        distanceVar = distanceSensor.distance()
+        Turn(2, direction)
+        angle += 2
+        if(distanceSensor.distance() > distanceVar and distanceSensor.distance() - distanceVar <= 20 and distanceVar > distanceVar1 + 50):
+            varFound = True
+
+    return angle
+'''
+    
+'''
+def FindDrivingAngle2(direction):
+    distanceVar = 0
+    boolFound = False
+    angle = 0
+
+    while(boolFound != True):
+        distanceVar = distanceSensor.distance()
+        Turn(1, direction)
+        angle += 1
+        if(distanceSensor.distance() >= 1000):
+            boolFound = True
+
+    return angle
+'''
+
+def FindCorner(direction):
+    cornerFound = False
+    distanceVar = 0
+
+    while(cornerFound != True):
+        distanceVar = distanceSensor.distance()
+        Turn(2, True)
+        angle += 2
+        if(distanceSensor.distance() > distanceVar and distanceSensor.distance() - distanceVar > 80):
+            cornerFound = True
+    
+    DriveStraightLength(20)
+
+    Turn(45, True)
+
+def FollowWall(mmPerDrive, direction):
+    distanceToWall = 0
+
+    for x in range(0, 350/mmPerDrive +1):
+        DriveStraightLength(mmPerDrive)
+        
+        distanceToWall = FindClosestObject(direction, 90, 60, 70).key
+
+        if(distanceSensor.distance() < 20):
+            DriveStraightBackwards(AbortOnDistance, 20)
+
+        Turn(90, not direction)
+
+        if(x == 350/mmPerDrive):
+            DriveStraight(AbortOnDistance, 30)
+        x += 1
+    
+    return distanceSensor.distance()
 
 #0 START - drive until first black line
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
@@ -389,17 +407,17 @@ ev3.speaker.beep(500, 100)
 #'''
 
 #4 bridge
-
+'''
 DriveStraightLength(100) # clear black line
 Turn(90, False)
 
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-
+#'''
 
 #4.5 bridge
-
+'''
 DriveStraightLength(-50)
 Turn(45, False)
 DriveStraightLength(140)
@@ -474,7 +492,7 @@ Grab(False)
 
 driveSpeed = 100
 
-DriveStraightLength(-400) #????? unknown value from drviestraight count lines
+DriveStraightLength(-400) #????? unknown value from driveStraight count lines
 Turn(180, False)
 DriveStraightLength(300)
 Turn(45, False)
@@ -499,15 +517,28 @@ FollowLine(grayWhite, 2, AbortOnReflection, black)
 ev3.speaker.beep(500, 100)
 #'''
 
+
 #8 - Walls
 #'''
-'''
-Turn(15, True)
-DriveToObject(20) # Go towards wall 1
-angle1 = FindDrivingAngle1(False) # Find out where to drive to go towards wall 2, going left
+DriveStraightLength(430) # Length till point
+
+Turn(110, False)
+FindCorner(True) # Syntax is FindCorner(direction to search for). Also moves forward and turns
+
+FollowWall(30, False) # Syntax is FollowWall(how far to drive per step, direction towards wall)
+
+Turn(90, True)
+FollowWall(30, False)
+
+DriveStraight(30)
+Turn(45, False)
+
+Snek(abortOnReflection, grayWhite)
+
+## OBS: BEHOLD DET HERUNDER INDTIL VIDERE
 '''
 #Turn(10, True)
-DriveStraightLength(440) # Length till point
+DriveStraightLength(460) # Length till point
 angle1 = FindDrivingAngle1(False)
 
 robot.reset() # Reset the written angle to 0, ensuring more precision during calculation
@@ -516,13 +547,14 @@ drivenDistanceWalls = robot.distance() # Finds distance travelled towards wall 2
 
 angle2 = FindDrivingAngle2(True) # Find out where to drive to go past wall 2, going right
 ev3.speaker.beep(500, 100)
-Turn(12, True)
+Turn(30, True)
 
 DriveStraightLength(drivenDistanceWalls) # Drive the distance driven previously towards wall 2
 
 Turn(abs(angle2 - angle1 - 30), False)
 Snek(AbortOnReflection, grayWhite)
 #'''
+
 
 #* - Home stretch (slut i midten)
 '''
