@@ -48,6 +48,7 @@ class Program:
     def __init__(self, running, activationLine):
         self.running = running
         self.activationLine = activationLine
+        self.wasStopped = False
 program = Program(False, 0)
 
 
@@ -204,7 +205,7 @@ def NextLine():
     
     ev3.speaker.beep(500, 500)
 
-    if program.activationLine > 10:
+    if program.activationLine > 12:
         program.activationLine = -1
         Finish()
 
@@ -231,6 +232,9 @@ def InterfacePanel():
                 if buttonsPressed[0] == Button.CENTER:
                     program.running = not(program.running)
 
+                    if not(program.running):
+                        program.wasStopped = True
+
         lastButtonsPressed = buttonsPressed
         
         wait(50)
@@ -241,6 +245,14 @@ Thread(target=InterfacePanel).start()
 
 
 while True:
+    # If robot was stopped, start before black line
+    if program.wasStopped and program.running:
+        program.wasStopped = False
+
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+
+
+
     if program.activationLine == 0 and program.running:
         #0 START (COLOR SENSOR MUST BE PLACED ON RIGHT SIDE OF LINE) - drive until first black line
         FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
@@ -260,7 +272,7 @@ while True:
         NextLine()
 
     elif program.activationLine == 2 and program.running:
-        #2
+        #2 second black line
         Turn(45, False)
         DriveStraightLength(100) # drive 10 cm to clear black line
         DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
@@ -271,7 +283,7 @@ while True:
         NextLine()
 
     elif program.activationLine == 3 and program.running:
-        #3 Second black line
+        #3 line to straight ahead or first bottle
         Turn(45, True)
         DriveStraightLength(100)
         DriveStraight(OnReflection, OnReflectionParam(gray, 10))
@@ -284,7 +296,7 @@ while True:
         DriveStraightLength(-300)
         Turn(180, False)
 
-        #3 first bottle
+        #3.5 first bottle
         Turn(45, True)
         DriveStraightLength(200)
         DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
@@ -295,15 +307,16 @@ while True:
         NextLine()
 
     elif program.activationLine == 4 and program.running:
-        #4 bridge
+        #4 line to bridge or way around bridge
         DriveStraightLength(100) # clear black line
         Turn(90, False)
 
         FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-        ev3.speaker.beep(500, 100)
+        NextLine()
 
-        #4.5 bridge
+    elif program.activationLine == 5 and program.running:
+        #5 line to bridge
         DriveStraightLength(-50)
         Turn(45, False)
         DriveStraightLength(140)
@@ -331,8 +344,8 @@ while True:
 
         NextLine()
 
-    elif program.activationLine == 5 and program.running:
-        #5 striped lines
+    elif program.activationLine == 6 and program.running:
+        #6 line to striped lines
         FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
         DriveStraightLength(100) # cross black line
         FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight for X sec after black line
@@ -343,16 +356,17 @@ while True:
 
         NextLine()
 
-    elif program.activationLine == 6 and program.running:
-        #6 circle
+    elif program.activationLine == 7 and program.running:
+        #7 line to straight ahead or circle
         DriveStraightLength(100)
         Turn(90, False)
 
         FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-        ev3.speaker.beep(500, 100)
+        NextLine()
 
-        #6.5 circle
+    elif program.activationLine == 8 and program.running:
+        #8 line to circle
         DriveStraightLength(150)
         DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5), 50)
         DriveStraightLength(200)
@@ -377,8 +391,8 @@ while True:
 
         NextLine()
 
-    elif program.activationLine == 7 and program.running:
-        #7 Around the bottles
+    elif program.activationLine == 9 and program.running:
+        #9 line to around the bottle
         DriveStraightLength(100)
         Turn(45, True)
         DriveStraightLength(350)
@@ -390,8 +404,8 @@ while True:
 
         NextLine()
 
-    elif program.activationLine == 8 and program.running:
-        #8 - Walls
+    elif program.activationLine == 10 and program.running:
+        #10 line to walls
         DriveStraightLength(580)
         Turn(45, False)
         DriveToObject(13)
@@ -406,8 +420,8 @@ while True:
 
         NextLine()
 
-    elif program.activationLine == 9 and program.running:
-        #9 Around bottle
+    elif program.activationLine == 11 and program.running:
+        #11 line to second around bottle
 
         DriveStraightLength(100)
         Turn(45, False)
@@ -420,8 +434,8 @@ while True:
 
         NextLine()
 
-    elif program.activationLine == 10 and program.running:
-        #10 Home stretch (slut i midten)
+    elif program.activationLine == 12 and program.running:
+        #12 line to home stretch (slut i midten)
 
         Turn(15, True)
         DriveStraightLength(100)
