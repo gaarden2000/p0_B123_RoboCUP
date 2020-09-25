@@ -41,12 +41,12 @@ gray = 40
 white = 70
 grayWhite = (gray + white) / 2
 
-driveSpeed = 100
 activationLine = 0
 
 stopwatch = StopWatch()
 
-def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1):
+def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1, driveSpeed = 100):
+
     while not(abortCondition(abortConditionParam1)):
         deviation = followReflection - lineSensor.reflection()
 
@@ -59,7 +59,7 @@ def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1)
 def FollowInnerLine(followReflection, turnGain, abortCondition, abortConditionParam1):
     FollowLine(followReflection, -turnGain, abortCondition, abortConditionParam1)
 
-def DriveStraight(abortCondition, abortConditionParam1):
+def DriveStraight(abortCondition, abortConditionParam1, driveSpeed = 100):
     while not(abortCondition(abortConditionParam1)):
         robot.drive(driveSpeed, 0)
         
@@ -173,7 +173,7 @@ def DriveToObject(cm):
     distanceToObject = distanceSensor.distance()
     DriveStraight(AbortOnDistance, cm*10)   
 
-def DriveStraightLengthCond(abortCondition1, abortCondition2, abortConditionParam1, abortConditionParam2):
+def DriveStraightLengthCond(abortCondition1, abortCondition2, abortConditionParam1, abortConditionParam2, driveSpeed = 100):
     while not(abortCondition1(abortConditionParam1) or abortCondition2(abortConditionParam2)):
        robot.drive(driveSpeed, 0)
 
@@ -298,12 +298,8 @@ Turn(45, False)
 DriveStraightLength(140)
 Turn(90, True)
 
-driveSpeed = 50
-
 DriveStraightLength(300)
 Turn(90, False)
-
-driveSpeed = 100
 
 DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
 Turn(45, True)
@@ -316,9 +312,8 @@ DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
 Turn(90, True)
 
 driveSpeed = 50
-FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000) # Align with line
-FollowLine(grayWhite, 2, OnTurn, OnTurnParam(90))
-driveSpeed = 100
+FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000, 50) # Align with line
+FollowLine(grayWhite, 2, OnTurn, OnTurnParam(90), 50)
 
 Turn(180, True)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
@@ -352,8 +347,7 @@ ev3.speaker.beep(500, 100)
 #6.5 circle
 #'''
 DriveStraightLength(150)
-driveSpeed = 50
-DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5))
+DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5), 50)
 DriveStraightLength(200)
 Turn(90, False)
 distanceToBottle = FindClosestObject(True, 90, 500, 55)
@@ -365,8 +359,6 @@ Turn(90 - distanceToBottle.value, True)
 DriveStraightLength(-250)
 Grab(False)
 
-driveSpeed = 100
-
 DriveStraightLength(-400) #????? unknown value from driveStraight count lines
 Turn(180, False)
 DriveStraightLength(300)
@@ -377,10 +369,8 @@ Turn(45, False)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #7 Around the bottles
-#'''
 DriveStraightLength(100)
 Turn(45, True)
 DriveStraightLength(350)
@@ -390,10 +380,8 @@ Turn(45, True)
 FollowLine(grayWhite, 2, AbortOnReflection, black)
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #8 - Walls
-#'''
 DriveStraightLength(430)
 Turn(45, False)
 DriveToObject(13)
