@@ -85,9 +85,9 @@ def OnReflection(onReflectionParam):
 class OnTurnParam:
     def __init__(self, angle):
         self.angle = angle
-        robot.reset()
+        robot.reset() # reset angle to 0
 
-# Returns True when robot has turned X angle.
+# Returns True when robot has turned X degrees.
 def OnTurn(onTurnParam):
     if (robot.angle() > onTurnParam.angle):
         return True
@@ -220,15 +220,13 @@ def Snake(abortCondition, abortConditionParam1):
 
 
 
-#'''
+
 #0 START - drive until first black line
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 500)
-#'''
 
 #1 Starts on first black line
-#'''
 Turn(45, True)
 DriveStraightLength(100) # drive 10 cm to clear black line
 DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
@@ -238,10 +236,8 @@ Turn(45, False)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #2
-#'''
 Turn(45, False)
 DriveStraightLength(100) # drive 10 cm to clear black line
 DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
@@ -250,10 +246,8 @@ Turn(45, True)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #3 Second black line
-#'''
 Turn(45, True)
 DriveStraightLength(100)
 DriveStraight(OnReflection, OnReflectionParam(gray, 10))
@@ -267,10 +261,8 @@ DriveStraightLength(-300)
 Turn(180, False)
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #3 first bottle
-#'''
 Turn(45, True)
 #DriveStraightLength(200)
 DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
@@ -279,20 +271,16 @@ Turn(45, True)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #4 bridge
-#'''
 DriveStraightLength(100) # clear black line
 Turn(90, False)
 
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #4.5 bridge
-#'''
 DriveStraightLength(-50)
 Turn(45, False)
 DriveStraightLength(140)
@@ -319,10 +307,8 @@ Turn(180, True)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #5 striped lines
-#'''
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 DriveStraightLength(100) # cross black line
 FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight for X sec after black line
@@ -332,20 +318,16 @@ Turn(45, True)
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #6 circle
-#'''
 DriveStraightLength(100)
 Turn(90, False)
 
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
-#'''
 
 #6.5 circle
-#'''
 DriveStraightLength(150)
 DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5), 50)
 DriveStraightLength(200)
@@ -377,6 +359,7 @@ DriveStraightLength(350)
 Turn(70, False)
 DriveStraightLength(380)
 Turn(45, True)
+
 FollowLine(grayWhite, 2, AbortOnReflection, black)
 
 ev3.speaker.beep(500, 100)
@@ -413,5 +396,3 @@ Turn(15, True)
 DriveStraightLength(100)
 FollowInnerLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 10000)
 FollowInnerLine(grayWhite, 2, AbortOnDistance, 1500)
-wait(5000)
-#'''
