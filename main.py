@@ -6,6 +6,7 @@ from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
+from threading import Thread
 
 # Import test files
 #from .BrokenLineTest.py import BrokenLineTestFunc
@@ -38,6 +39,18 @@ white = 70
 grayWhite = (gray + white) / 2
 
 stopwatch = StopWatch()
+
+
+screen = ev3.screen
+
+
+class Program:
+    def __init__(self, running, activationLine):
+        self.running = running
+        self.activationLine = activationLine
+program = Program(False, 0)
+
+
 
 def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1, driveSpeed = 100):
 
@@ -161,12 +174,6 @@ def DriveToObject(cm):
     distanceToObject = distanceSensor.distance()
     DriveStraight(AbortOnDistance, cm*10)   
 
-def DriveStraightLengthCond(abortCondition1, abortCondition2, abortConditionParam1, abortConditionParam2, driveSpeed = 100):
-    while not(abortCondition1(abortConditionParam1) or abortCondition2(abortConditionParam2)):
-       robot.drive(driveSpeed, 0)
-
-    robot.stop() 
-
 class KeyValue:
     def __init__(self, key, value):
         self.key = key
@@ -192,197 +199,244 @@ def FindClosestObject(direction, scanDegrees, scanDistance, offset):
     Turn(9 + scanDegrees - closest.value, False)
     return KeyValue(closest.key - offset, closest.value)
 
-def Snake(abortCondition, abortConditionParam1, snakeDistance):
-    direction = True
-    Turn(45, not direction)
-    robot.reset()
-    DriveStraightLengthCond(AbortOnDistanceTravelled, OnReflection, snakeDistance, OnReflectionParam(grayWhite, 10))
+def NextLine():
+    program.activationLine += 1
+    
+    ev3.speaker.beep(500, 500)
 
-    while not(abortCondition(abortConditionParam1)):
-        Turn(90, direction)
+    if program.activationLine > 10:
+        program.activationLine = -1
+        Finish()
 
-        robot.reset()
-        DriveStraightLengthCond(AbortOnDistanceTravelled, OnReflection, snakeDistance, OnReflectionParam(grayWhite, 10)))
+def Finish():
+    ev3.speaker.beep(100, 250)
+    ev3.speaker.beep(500, 250)
+    ev3.speaker.beep(200, 250)
+    ev3.speaker.beep(300, 250)
+    ev3.speaker.beep(100, 250)
+    ev3.speaker.beep(500, 250)
+    ev3.speaker.beep(200, 250)
+    ev3.speaker.beep(300, 250)
+    ev3.speaker.beep(100, 250)
+    ev3.speaker.beep(500, 250)
+    ev3.speaker.beep(200, 250)
+    ev3.speaker.beep(300, 250)
 
-        direction = not direction
+def InterfacePanel():
+    lastButtonsPressed = 0
+
+    while True:
+        buttonsPressed = ev3.buttons.pressed()
+        
+        screen.clear()
+        screen.print("Running: " + str(program.running))
+        screen.print("Line: " + str(program.activationLine))
+        screen.print(str(buttonsPressed))
+
+        if (buttonsPressed != lastButtonsPressed):
+            if (len(buttonsPressed) > 0):
+                if buttonsPressed[0] == Button.LEFT:
+                    program.activationLine -= 1
+                if buttonsPressed[0] == Button.RIGHT:
+                    program.activationLine += 1
+                if buttonsPressed[0] == Button.CENTER:
+                    program.running = not(program.running)
+
+        lastButtonsPressed = buttonsPressed
+        
+        wait(50)
+
+# Start LCD interface
+Thread(target=InterfacePanel).start()
 
 
 
+while True:
+    if program.activationLine == 0 and program.running:
+        #0 START (COLOR SENSOR MUST BE PLACED ON RIGHT SIDE OF LINE) - drive until first black line
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-#0 START (COLOR SENSOR MUST BE PLACED ON RIGHT SIDE OF LINE) - drive until first black line
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+        NextLine()
 
-ev3.speaker.beep(500, 500)
+    elif program.activationLine == 1 and program.running:
+        #1 Starts on first black line
+        Turn(45, True)
+        DriveStraightLength(100) # drive 10 cm to clear black line
+        DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
+        DriveStraight(OnReflection, OnReflectionParam(white, 10)) # drive until white
+        Turn(45, False)
 
-#1 Starts on first black line
-Turn(45, True)
-DriveStraightLength(100) # drive 10 cm to clear black line
-DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
-DriveStraight(OnReflection, OnReflectionParam(white, 10)) # drive until white
-Turn(45, False)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+        NextLine()
 
-ev3.speaker.beep(500, 100)
+    elif program.activationLine == 2 and program.running:
+        #2
+        Turn(45, False)
+        DriveStraightLength(100) # drive 10 cm to clear black line
+        DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
+        Turn(45, True)
 
-#2
-Turn(45, False)
-DriveStraightLength(100) # drive 10 cm to clear black line
-DriveStraight(OnReflection, OnReflectionParam(gray, 10)) # drive until start of gray line
-Turn(45, True)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+        NextLine()
 
-ev3.speaker.beep(500, 100)
+    elif program.activationLine == 3 and program.running:
+        #3 Second black line
+        Turn(45, True)
+        DriveStraightLength(100)
+        DriveStraight(OnReflection, OnReflectionParam(gray, 10))
+        Turn(5, False)
+        distanceToBottle = FindClosestObject(True, 90, 500, 55).key
+        DriveStraightLength(distanceToBottle)
+        Grab(True)
+        DriveStraightLength(250)
+        Grab(False)
+        DriveStraightLength(-300)
+        Turn(180, False)
 
-#3 Second black line
-Turn(45, True)
-DriveStraightLength(100)
-DriveStraight(OnReflection, OnReflectionParam(gray, 10))
-Turn(5, False)
-distanceToBottle = FindClosestObject(True, 90, 500, 55).key
-DriveStraightLength(distanceToBottle)
-Grab(True)
-DriveStraightLength(250)
-Grab(False)
-DriveStraightLength(-300)
-Turn(180, False)
+        #3 first bottle
+        Turn(45, True)
+        DriveStraightLength(200)
+        DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+        Turn(45, True)
 
-ev3.speaker.beep(500, 100)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-#3 first bottle
-Turn(45, True)
-#DriveStraightLength(200)
-DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
-Turn(45, True)
+        NextLine()
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+    elif program.activationLine == 4 and program.running:
+        #4 bridge
+        DriveStraightLength(100) # clear black line
+        Turn(90, False)
 
-ev3.speaker.beep(500, 100)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-#4 bridge
-DriveStraightLength(100) # clear black line
-Turn(90, False)
+        ev3.speaker.beep(500, 100)
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+        #4.5 bridge
+        DriveStraightLength(-50)
+        Turn(45, False)
+        DriveStraightLength(140)
+        Turn(90, True)
 
-ev3.speaker.beep(500, 100)
+        DriveStraightLength(300)
+        Turn(90, False)
 
-#4.5 bridge
-DriveStraightLength(-50)
-Turn(45, False)
-DriveStraightLength(140)
-Turn(90, True)
+        DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+        Turn(45, True)
 
-DriveStraightLength(300)
-Turn(90, False)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(gray - 20, 10)) # alternative to stop time
+        Turn(45, True)
+        DriveStraightLength(300)
+        Turn(135, False)
+        DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+        Turn(90, True)
 
-DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
-Turn(45, True)
+        driveSpeed = 50
+        FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000, 50) # Align with line
+        FollowLine(grayWhite, 2, OnTurn, OnTurnParam(90), 50)
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(gray - 20, 10)) # alternative to stop time
-Turn(45, True)
-DriveStraightLength(300)
-Turn(135, False)
-DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
-Turn(90, True)
+        Turn(180, True)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-driveSpeed = 50
-FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 3000, 50) # Align with line
-FollowLine(grayWhite, 2, OnTurn, OnTurnParam(90), 50)
+        NextLine()
 
-Turn(180, True)
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+    elif program.activationLine == 5 and program.running:
+        #5 striped lines
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+        DriveStraightLength(100) # cross black line
+        FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight for X sec after black line
+        Turn(45, False)
+        DriveStraight(CountLines, CountLinesParam(3, gray, white, 10))
+        Turn(45, True)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-ev3.speaker.beep(500, 100)
+        NextLine()
 
-#5 striped lines
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
-DriveStraightLength(100) # cross black line
-FollowLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 2000) # drive straight for X sec after black line
-Turn(45, False)
-DriveStraight(CountLines, CountLinesParam(3, gray, white, 10))
-Turn(45, True)
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+    elif program.activationLine == 6 and program.running:
+        #6 circle
+        DriveStraightLength(100)
+        Turn(90, False)
 
-ev3.speaker.beep(500, 100)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-#6 circle
-DriveStraightLength(100)
-Turn(90, False)
+        ev3.speaker.beep(500, 100)
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+        #6.5 circle
+        DriveStraightLength(150)
+        DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5), 50)
+        DriveStraightLength(200)
+        Turn(90, False)
+        distanceToBottle = FindClosestObject(True, 90, 500, 55)
+        DriveStraightLength(distanceToBottle.key)
+        Grab(True)
 
-ev3.speaker.beep(500, 100)
+        DriveStraightLength(-distanceToBottle.key)
+        Turn(90 - distanceToBottle.value, True)
+        DriveStraightLength(-250)
+        Grab(False)
 
-#6.5 circle
-DriveStraightLength(150)
-DriveStraight(CountLines, CountLinesParam(3, gray + 15, white, 5), 50)
-DriveStraightLength(200)
-Turn(90, False)
-distanceToBottle = FindClosestObject(True, 90, 500, 55)
-DriveStraightLength(distanceToBottle.key)
-Grab(True)
+        DriveStraightLength(-400) #????? unknown value from driveStraight count lines
+        Turn(180, False)
+        DriveStraightLength(300)
+        Turn(45, False)
+        DriveStraightLength(200)
+        DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+        Turn(45, False)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-DriveStraightLength(-distanceToBottle.key)
-Turn(90 - distanceToBottle.value, True)
-DriveStraightLength(-250)
-Grab(False)
+        NextLine()
 
-DriveStraightLength(-400) #????? unknown value from driveStraight count lines
-Turn(180, False)
-DriveStraightLength(300)
-Turn(45, False)
-DriveStraightLength(200)
-DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
-Turn(45, False)
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+    elif program.activationLine == 7 and program.running:
+        #7 Around the bottles
+        DriveStraightLength(100)
+        Turn(45, True)
+        DriveStraightLength(350)
+        Turn(70, False)
+        DriveStraightLength(380)
+        Turn(45, True)
 
-ev3.speaker.beep(500, 100)
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black+10, 10))
 
-#7 Around the bottles
-DriveStraightLength(100)
-Turn(45, True)
-DriveStraightLength(350)
-Turn(70, False)
-DriveStraightLength(380)
-Turn(45, True)
+        NextLine()
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+    elif program.activationLine == 8 and program.running:
+        #8 - Walls
+        DriveStraightLength(580)
+        Turn(45, False)
+        DriveToObject(13)
+        Turn(80, True)
+        DriveStraightLength(650)
+        Turn(90, False)
 
-ev3.speaker.beep(500, 100)
+        DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
+        Turn(45, True)
+        
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-#8 - Walls
-DriveStraightLength(430)
-Turn(45, False)
-DriveToObject(13)
-Turn(90, True)
-DriveStraightLength(350)
-Turn(50, False)
-Snake(OnReflection, OnReflectionParam(grayWhite, 10), 200)
+        NextLine()
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+    elif program.activationLine == 9 and program.running:
+        #9 Around bottle
 
-ev3.speaker.beep(500, 100)
+        DriveStraightLength(100)
+        Turn(45, False)
+        DriveStraightLength(350)
+        Turn(70, True)
+        DriveStraightLength(380)
+        Turn(45, False)
 
-#9 Around bottle
+        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-ev3.speaker.beep(500, 100)
+        NextLine()
 
-DriveStraightLength(100)
-Turn(45, False)
-DriveStraightLength(350)
-Turn(70, True)
-DriveStraightLength(380)
-Turn(45, False)
+    elif program.activationLine == 10 and program.running:
+        #10 Home stretch (slut i midten)
 
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+        Turn(15, True)
+        DriveStraightLength(100)
+        FollowInnerLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 10000) # Align with line, so ultrasound sensor is straight to wall
+        FollowInnerLine(grayWhite, 2, AbortOnDistance, 1500)
 
-ev3.speaker.beep(500, 100)
-
-#10 Home stretch (slut i midten)
-
-Turn(15, True)
-DriveStraightLength(100)
-FollowInnerLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 10000) # Align with line, so ultrasound sensor is straight to wall
-FollowInnerLine(grayWhite, 2, AbortOnDistance, 1500)
+        NextLine()
