@@ -209,18 +209,7 @@ def NextLine():
         Finish()
 
 def Finish():
-    ev3.speaker.beep(100, 250)
-    ev3.speaker.beep(500, 250)
-    ev3.speaker.beep(200, 250)
-    ev3.speaker.beep(300, 250)
-    ev3.speaker.beep(100, 250)
-    ev3.speaker.beep(500, 250)
-    ev3.speaker.beep(200, 250)
-    ev3.speaker.beep(300, 250)
-    ev3.speaker.beep(100, 250)
-    ev3.speaker.beep(500, 250)
-    ev3.speaker.beep(200, 250)
-    ev3.speaker.beep(300, 250)
+    ev3.speaker.play_notes(['C4/4', 'C4/4', 'G4/4', 'G4/4'])
 
 def InterfacePanel():
     lastButtonsPressed = 0
