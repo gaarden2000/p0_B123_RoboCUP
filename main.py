@@ -122,12 +122,6 @@ def CountLines(obj):
     if (obj.transition == True and (reflection >= obj.transitionColor - threshold and reflection <= obj.transitionColor + threshold)):
         obj.transition = False
 
-def AbortOnReflection(reflection):
-    if lineSensor.reflection() < reflection:
-        return True
-
-    return False
-
 def AbortOnTime(stopTime):
     if (stopwatch.time() > stopTime):
         return True
@@ -202,13 +196,13 @@ def Snake(abortCondition, abortConditionParam1, snakeDistance):
     direction = True
     Turn(45, not direction)
     robot.reset()
-    DriveStraightLengthCond(AbortOnDistanceTravelled, AbortOnReflection, snakeDistance, grayWhite)
+    DriveStraightLengthCond(AbortOnDistanceTravelled, OnReflection, snakeDistance, OnReflectionParam(grayWhite, 10))
 
     while not(abortCondition(abortConditionParam1)):
         Turn(90, direction)
 
         robot.reset()
-        DriveStraightLengthCond(AbortOnDistanceTravelled, AbortOnReflection, snakeDistance, grayWhite)
+        DriveStraightLengthCond(AbortOnDistanceTravelled, OnReflection, snakeDistance, OnReflectionParam(grayWhite, 10)))
 
         direction = not direction
 
@@ -354,7 +348,7 @@ Turn(70, False)
 DriveStraightLength(380)
 Turn(45, True)
 
-FollowLine(grayWhite, 2, AbortOnReflection, black)
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 
@@ -365,7 +359,7 @@ DriveToObject(13)
 Turn(90, True)
 DriveStraightLength(350)
 Turn(50, False)
-Snake(AbortOnReflection, grayWhite, 200)
+Snake(OnReflection, OnReflectionParam(grayWhite, 10), 200)
 
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
