@@ -30,18 +30,12 @@ lineSensor = ColorSensor(Port.S2)
 # Ultrasonic sensor initialised
 distanceSensor = UltrasonicSensor(Port.S4)
 
-# Gyro initialised
-#gyroSensor = GyroSensor(Port.S3)
-#gyroSensor.reset_angle(0)
-
 robot = DriveBase(leftMotor, rightMotor, wheel_diameter = 55.5, axle_track=105)
 
 black = 10
 gray = 40
 white = 70
 grayWhite = (gray + white) / 2
-
-activationLine = 0
 
 stopwatch = StopWatch()
 
