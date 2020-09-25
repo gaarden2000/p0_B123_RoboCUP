@@ -221,9 +221,9 @@ def InterfacePanel():
         screen.clear()
         screen.print("Running: " + str(program.running))
         screen.print("Line: " + str(program.activationLine))
-        screen.print(str(buttonsPressed))
-
         if (buttonsPressed != lastButtonsPressed):
+            lastButtonsPressed = buttonsPressed
+
             if (len(buttonsPressed) > 0):
                 if buttonsPressed[0] == Button.LEFT:
                     program.activationLine -= 1
@@ -234,8 +234,6 @@ def InterfacePanel():
 
                     if not(program.running):
                         program.wasStopped = True
-
-        lastButtonsPressed = buttonsPressed
         
         wait(50)
 
@@ -245,21 +243,20 @@ Thread(target=InterfacePanel).start()
 
 
 while True:
-    # If robot was stopped, start before black line
-    if program.wasStopped and program.running:
+    if (program.activationLine == 0 or program.wasStopped) and program.running:
+        #0 START (COLOR SENSOR MUST BE PLACED ON RIGHT SIDE OF LINE) - drive until first black line
+        # OR
+        # If robot was stopped, start before black line
         program.wasStopped = False
 
         FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
+        if program.activationLine == 0:
+            NextLine()
 
 
-    if program.activationLine == 0 and program.running:
-        #0 START (COLOR SENSOR MUST BE PLACED ON RIGHT SIDE OF LINE) - drive until first black line
-        FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
-        NextLine()
-
-    elif program.activationLine == 1 and program.running:
+    if program.activationLine == 1 and program.running:
         #1 Starts on first black line
         Turn(45, True)
         DriveStraightLength(100) # drive 10 cm to clear black line
