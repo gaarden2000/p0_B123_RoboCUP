@@ -203,7 +203,7 @@ def Snake(abortCondition, abortConditionParam1, snakeDistance):
     Turn(45, not direction)
     robot.reset()
     DriveStraightLengthCond(AbortOnDistanceTravelled, AbortOnReflection, snakeDistance, grayWhite)
-    
+
     while not(abortCondition(abortConditionParam1)):
         Turn(90, direction)
 
@@ -215,7 +215,7 @@ def Snake(abortCondition, abortConditionParam1, snakeDistance):
 
 
 
-#0 START - drive until first black line
+#0 START (COLOR SENSOR MUST BE PLACED ON RIGHT SIDE OF LINE) - drive until first black line
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 500)
@@ -367,12 +367,11 @@ DriveStraightLength(350)
 Turn(50, False)
 Snake(AbortOnReflection, grayWhite, 200)
 
+FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+
 ev3.speaker.beep(500, 100)
 
-
-#* - Home stretch (slut i midten)
-
-FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
+#9 Around bottle
 
 ev3.speaker.beep(500, 100)
 
@@ -382,11 +381,14 @@ DriveStraightLength(350)
 Turn(70, True)
 DriveStraightLength(380)
 Turn(45, False)
+
 FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
 
 ev3.speaker.beep(500, 100)
 
+#10 Home stretch (slut i midten)
+
 Turn(15, True)
 DriveStraightLength(100)
-FollowInnerLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 10000)
+FollowInnerLine(grayWhite, 2, AbortOnTime, stopwatch.time() + 10000) # Align with line, so ultrasound sensor is straight to wall
 FollowInnerLine(grayWhite, 2, AbortOnDistance, 1500)
