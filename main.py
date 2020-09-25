@@ -146,7 +146,7 @@ def AbortOnDistance(distanceToObject):
     
     return False
 
-def abortOnDistanceTravelled(distanceToTravel):
+def AbortOnDistanceTravelled(distanceToTravel):
     if(distanceToTravel <= robot.distance()):
         return True
     
@@ -204,17 +204,17 @@ def FindClosestObject(direction, scanDegrees, scanDistance, offset):
     Turn(9 + scanDegrees - closest.value, False)
     return KeyValue(closest.key - offset, closest.value)
 
-def Snake(abortCondition, abortConditionParam1):
+def Snake(abortCondition, abortConditionParam1, snakeDistance):
     direction = True
     Turn(45, not direction)
     robot.reset()
-    DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 150, grayWhite)
-
+    DriveStraightLengthCond(AbortOnDistanceTravelled, AbortOnReflection, snakeDistance, grayWhite)
+    
     while not(abortCondition(abortConditionParam1)):
         Turn(90, direction)
 
         robot.reset()
-        DriveStraightLengthCond(abortOnDistanceTravelled, AbortOnReflection, 150, grayWhite)
+        DriveStraightLengthCond(AbortOnDistanceTravelled, AbortOnReflection, snakeDistance, grayWhite)
 
         direction = not direction
 
@@ -371,7 +371,7 @@ DriveToObject(13)
 Turn(90, True)
 DriveStraightLength(350)
 Turn(50, False)
-Snake(AbortOnReflection, grayWhite)
+Snake(AbortOnReflection, grayWhite, 200)
 
 ev3.speaker.beep(500, 100)
 
