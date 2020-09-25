@@ -57,14 +57,7 @@ def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1)
     robot.stop()
 
 def FollowInnerLine(followReflection, turnGain, abortCondition, abortConditionParam1):
-    while not(abortCondition(abortConditionParam1)):
-        deviation = lineSensor.reflection() - followReflection
-
-        turnRate = turnGain * deviation
-
-        robot.drive(driveSpeed, turnRate)
-
-    robot.stop()   
+    FollowLine(followReflection, -turnGain, abortCondition, abortConditionParam1)
 
 def DriveStraight(abortCondition, abortConditionParam1):
     while not(abortCondition(abortConditionParam1)):
