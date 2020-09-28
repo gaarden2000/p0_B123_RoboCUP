@@ -53,9 +53,8 @@ program = Program(False, 0)
 
 
 
-def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1, driveSpeed = 100):
-
-    while not(abortCondition(abortConditionParam1)):
+def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam, driveSpeed = 100):
+    while not(abortCondition(abortConditionParam)):
         deviation = followReflection - lineSensor.reflection()
 
         turnRate = turnGain * deviation
@@ -64,11 +63,11 @@ def FollowLine(followReflection, turnGain, abortCondition, abortConditionParam1,
 
     robot.stop()
 
-def FollowInnerLine(followReflection, turnGain, abortCondition, abortConditionParam1):
-    FollowLine(followReflection, -turnGain, abortCondition, abortConditionParam1)
+def FollowInnerLine(followReflection, turnGain, abortCondition, abortConditionParam):
+    FollowLine(followReflection, -turnGain, abortCondition, abortConditionParam)
 
-def DriveStraight(abortCondition, abortConditionParam1, driveSpeed = 100):
-    while not(abortCondition(abortConditionParam1)):
+def DriveStraight(abortCondition, abortConditionParam, driveSpeed = 100):
+    while not(abortCondition(abortConditionParam)):
         robot.drive(driveSpeed, 0)
         
     robot.stop()
@@ -121,20 +120,21 @@ class CountLinesParam:
         self.transitionColor = transitionColor
         self.threshold = threshold
 
-def CountLines(obj):
-    threshold = obj.threshold
+def CountLines(countLinesParam):
+    o = CountLinesParam
+
     reflection = lineSensor.reflection()
     
-    if (obj.currentLine >= obj.stopOnLine):
+    if (o.currentLine >= o.stopOnLine):
         return True
     
-    if (obj.transition == False and (reflection >= obj.startColor - threshold and reflection <= obj.startColor + threshold)):
-        obj.currentLine += 1
-        obj.transition = True
+    if (o.transition == False and (reflection >= o.startColor - o.threshold and reflection <= o.startColor + o.threshold)):
+        o.currentLine += 1
+        o.transition = True
         ev3.speaker.beep(2000, 100)
 
-    if (obj.transition == True and (reflection >= obj.transitionColor - threshold and reflection <= obj.transitionColor + threshold)):
-        obj.transition = False
+    if (o.transition == True and (reflection >= o.transitionColor - o.threshold and reflection <= o.transitionColor + o.threshold)):
+        o.transition = False
 
 def AbortOnTime(stopTime):
     if (stopwatch.time() > stopTime):
