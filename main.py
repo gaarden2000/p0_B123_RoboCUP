@@ -180,7 +180,7 @@ class KeyValue:
         self.key = key
         self.value = value
 
-def FindClosestObject(direction, scanDegrees, scanDistance, offset):
+def FindClosestObject(direction, scanDegrees, scanDistance, offsetDistance):
     distances = []
     degrees = 0
     
@@ -198,7 +198,7 @@ def FindClosestObject(direction, scanDegrees, scanDistance, offset):
     closest = distances[median]
 
     Turn(9 + scanDegrees - closest.value, False)
-    return KeyValue(closest.key - offset, closest.value)
+    return KeyValue(closest.key - offsetDistance, closest.value)
 
 def NextLine():
     program.activationLine += 1
