@@ -394,8 +394,8 @@ while True:
         DriveStraightLength(100)
         Turn(45, True)
         DriveStraightLength(350)
-        Turn(70, False)
-        DriveStraightLength(380)
+        Turn(90, False)
+        DriveStraight(CountLines, CountLinesParam(2, white, gray, 10))
         Turn(45, True)
 
         FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black+10, 10))
