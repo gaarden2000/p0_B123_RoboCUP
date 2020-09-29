@@ -359,7 +359,7 @@ while True:
         Turn(90, False)
 
         FollowLine(grayWhite, 2, OnReflection, OnReflectionParam(black, 10))
-        Turn(4, False) # Correct direction after hitting the black line
+        Turn(3, False) # Correct direction after hitting the black line
 
         NextLine()
 
@@ -367,7 +367,7 @@ while True:
         #8 line to circle
         DriveStraightLength(150)
         DriveStraight(CountLines, CountLinesParam(3, gray + 18, white, 5), 50)
-        DriveStraightLength(200)
+        DriveStraightLength(300)
         Turn(90, False)
         distanceToBottle = FindClosestObject(True, 90, 500, 55)
         DriveStraightLength(distanceToBottle.key)
@@ -375,7 +375,7 @@ while True:
 
         DriveStraightLength(-distanceToBottle.key)
         Turn(90 - distanceToBottle.value, True)
-        DriveStraightLength(-250)
+        DriveStraightLength(-450)
         Grab(False)
 
         DriveStraightLength(-400) #????? unknown value from driveStraight count lines
