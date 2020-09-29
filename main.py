@@ -366,7 +366,7 @@ while True:
     elif program.activationLine == 8 and program.running:
         #8 line to circle
         DriveStraightLength(150)
-        DriveStraight(CountLines, CountLinesParam(3, gray + 18, white, 5), 50)
+        DriveStraight(CountLines, CountLinesParam(3, white - 13, white, 5), 50)
         DriveStraightLength(300)
         Turn(90, False)
         distanceToBottle = FindClosestObject(True, 90, 500, 50)
@@ -375,7 +375,7 @@ while True:
 
         DriveStraightLength(-distanceToBottle.key)
         Turn(90 - distanceToBottle.value, True)
-        DriveStraightLength(-450)
+        DriveStraightLength(-350)
         Grab(False)
 
         DriveStraightLength(-400) #????? unknown value from driveStraight count lines
