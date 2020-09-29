@@ -121,7 +121,7 @@ class CountLinesParam:
         self.threshold = threshold
 
 def CountLines(countLinesParam):
-    o = CountLinesParam
+    o = countLinesParam
 
     reflection = lineSensor.reflection()
     
