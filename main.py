@@ -285,7 +285,7 @@ while True:
         DriveStraightLength(100)
         DriveStraight(OnReflection, OnReflectionParam(gray, 10))
         Turn(5, False)
-        distanceToBottle = FindClosestObject(True, 90, 500, 55).key
+        distanceToBottle = FindClosestObject(True, 90, 500, 50).key
         DriveStraightLength(distanceToBottle)
         Grab(True)
         DriveStraightLength(250)
@@ -369,7 +369,7 @@ while True:
         DriveStraight(CountLines, CountLinesParam(3, gray + 18, white, 5), 50)
         DriveStraightLength(300)
         Turn(90, False)
-        distanceToBottle = FindClosestObject(True, 90, 500, 55)
+        distanceToBottle = FindClosestObject(True, 90, 500, 50)
         DriveStraightLength(distanceToBottle.key)
         Grab(True)
 
